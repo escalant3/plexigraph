@@ -2,6 +2,7 @@ from django.shortcuts import render_to_response, redirect
 from django.utils import simplejson
 
 import networkx as nx
+import pickle
 from plexigraph.nx.interaction import NetworkxInteractor
 from plexigraph.tools import importers
 
@@ -24,8 +25,14 @@ def explore(request, dataset_id):
     graph = interactor.graph
     layout = request.session.get('layout')
     if (not layout):
-        layout = nx.drawing.spring_layout(graph, scale=600)
-        request.session['layout'] = layout
+        if not dataset.layout:
+            layout = nx.drawing.spring_layout(graph, scale=600)
+            request.session['layout'] = layout
+            dataset.layout = pickle.dumps(layout)
+            dataset.save()
+        else:
+            layout = dataset.layout
+            request.session['layout'] = layout
     nodes = {}
     edges = {}
     for node in graph.nodes():

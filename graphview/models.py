@@ -2,12 +2,15 @@ import simplejson
 
 from django.db import models
 
+from fields import PickledObjectField
+
 class Dataset(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=1000)
     topics = models.FileField(upload_to='files/')
     relations = models.FileField(upload_to='files/')
     configuration = models.TextField()
+    layout = PickledObjectField(blank=True)
 
 
     def __unicode__(self):
