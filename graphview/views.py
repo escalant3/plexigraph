@@ -18,8 +18,11 @@ def explore(request, dataset_id):
     styles = dataset.node_styles()
     interactor = request.session.get('interactor')
     if (not interactor):
-        graph = importers.dictionary_to_nx(dataset.topics.path,
-                                        dataset.relations.path)
+        if dataset.data_type == 'plxgh':
+            graph = importers.dictionary_to_nx(dataset.topics.path,
+                                            dataset.relations.path)
+        else:
+            graph = getattr(nx, 'read_%s' % dataset.data_type)(dataset.graph_file)
         interactor = NetworkxInteractor(graph)
         request.session['interactor'] = interactor
     graph = interactor.graph
@@ -40,9 +43,13 @@ def explore(request, dataset_id):
         nodes[node]['ID'] = node
         nodes[node]['xpos'] = layout[node][0]
         nodes[node]['ypos'] = layout[node][1]
-        nodes[node]['color'] = styles[str(graph.node[node]['type'])]['color']
-        nodes[node]['size'] = styles[str(graph.node[node]['type'])]['size']
         nodes[node].update(interactor.node_data(node))
+        try:
+            nodes[node]['color'] = styles[str(graph.node[node]['type'])]['color']
+            nodes[node]['size'] = styles[str(graph.node[node]['type'])]['size']
+        except KeyError:
+            nodes[node]['color'] = "#ffffff"
+            nodes[node]['size'] = "1.0"
     for i in range(len(graph.edges())):
         edge = graph.edges()[i]
         edges[i] = {'ID': i,
