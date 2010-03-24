@@ -18,6 +18,12 @@ class Dataset(models.Model):
         ('sparse6', 'Sparse6'),
         ('pajek', 'Pajek'),
     )
+    DEFAULT_CONFIGURATION = """ {"topic_structure": {},
+    "relation_node_info": {},
+    "node_styles": {},
+    "edge_styles": {}
+    }
+    """
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=1000)
     data_type = models.CharField(max_length=10, choices=DATASET_TYPE_CHOICES)
@@ -27,7 +33,7 @@ class Dataset(models.Model):
                                 help_text='Useful for plexigraph format only')
     graph_file = models.FileField(upload_to='files/', blank=True,
                         help_text='Required for non-plexigraph formats only')
-    configuration = models.TextField()
+    configuration = models.TextField(default = DEFAULT_CONFIGURATION)
     layout = PickledObjectField(blank=True)
 
 
