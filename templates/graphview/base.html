@@ -1,0 +1,24 @@
+<html>
+<head>
+{% block title %}
+    <title>Plexigraph Viewer</title>
+{% endblock %}
+<link href="/site_media/explorer.css" rel="stylesheet" type="text/css">
+<script language="javascript" src="/site_media/raphael-min.js"></script>
+<script language="javascript" src="/site_media/graph-canvas.js"></script>
+
+{% block javascript %}{% endblock %}
+</head>
+<body>
+<div id="container">
+    {% block header %}
+        <div id="header">
+            <h1>Graphviewer powered by Plexigraph</h1>
+        </div>
+    {% endblock %}
+    {% block menu %}{% endblock %}
+    {% block content %}{% endblock %}
+</div>
+{% block bottombar %}{% endblock %}
+</body>
+</html>

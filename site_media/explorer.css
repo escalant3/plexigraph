@@ -1,0 +1,51 @@
+#container{ 
+text-align: left; 
+width: 1200px; 
+background-color : #ffffff; 
+margin: auto; 
+}
+
+#header{ 
+height : 50px; 
+
+}
+
+#menu{
+text-align: left; 
+width: 180px; 
+float:left;
+padding: 10px;
+}
+
+#content{
+width: 1000px;
+float:right;
+}
+
+#canvas{
+text-align: left; 
+width: 800px;
+float:left;
+background-color: cornflowerblue;
+}
+
+#info{
+text-align: left;
+width: 180px;
+padding: 5px;
+background-color : #FFF790;
+float: right;
+}
+
+table{
+font-size: x-small;
+}
+
+.topics{
+font-size: x-small;
+background-color : #000000;
+padding: 10px;
+
+a{
+font-size: x-small;
+}

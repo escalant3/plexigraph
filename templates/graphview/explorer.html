@@ -1,0 +1,68 @@
+{% extends "graphview/base.html" %}
+
+{% block javascript %}
+    <script type="text/javascript" charset="utf-8"> 
+        var selected_node;
+        var data = eval({{ json_graph|safe }});
+        var node_fields_shown = ["text-type", "text", "xpos", "ypos", "degree",
+            "clustering", "original-degree", "original-clustering"];
+        var edge_fields_shown = ["node1", "node2"];
+
+        window.onload = function () {    
+            var rafael = new RaphaelGraph(data, node_fields_shown, edge_fields_shown);
+            rafael.draw();
+        }
+
+        function delete_node() {
+            url = "delete_node/" + selected_node;
+            self.location.href=url;
+        }
+
+        function execute_query() {
+            query = document.getElementById("query").value;
+            url = "interactor_query/" + query;
+            self.location.href=url;
+        }
+    </script> 
+{% endblock %}
+
+{% block menu %}
+    <div id="menu">
+        <h3>Dataset</h3>
+            <table class="dataset">
+                <tr>
+                    <td>Name: </td>
+                    <td>{{ dataset.name }}</td>
+                </tr>
+                <tr>
+                    <td>Description: </td>
+                    <td>{{ dataset.description }}</td>
+                </tr>
+            </table>
+            <h3>Topics</h3>
+            <div class="topics">
+                {% for key, style in node_style_list %}
+                    <input type="checkbox" checked onclick="alert('{{ style.label }}')"><span style="color:{{ style.color }}">{{ style.label }}</span><br>
+                {% endfor %}
+            </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div id="content">
+        <div id="canvas"> </div>
+        <div id="info">
+            {% include "graphview/infoTable.html" %}
+            {% include "graphview/actions.html" %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block bottombar %}
+    <div id="commandbar">
+        <input id="query" type="text" size="150"/>
+        <input id="btn_query" type="button" value="Query" onclick="execute_query()"/>
+    </div>
+{% endblock %}
+
+

@@ -1,0 +1,10 @@
+{% extends "graphview/base.html" %}
+
+{% block content %}
+    <h4>Select a dataset to work on</h4>
+    <ul>
+        {% for dataset in datasets %}
+            <li> <a href="/viewer/{{ dataset.id }}/explore/">{{ dataset.name }}</a></li> 
+        {% endfor %}
+    </ul>
+{% endblock %}
