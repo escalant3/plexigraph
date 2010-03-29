@@ -17,7 +17,9 @@ function RaphaelGraph(_data, _node_fields_shown, _edge_fields_shown) {
 function draw() {
     var r = this.paper.rect(0, 0, this.width, this.height, 10);
     for (var node in this.data.nodes) {
-        this.draw_node(this.data.nodes[node], this.node_fields_shown);
+        if (this.data.nodes[node]['_visible'] == true) {
+            this.draw_node(this.data.nodes[node], this.node_fields_shown);
+        }
     };
     for (var edge in this.data.edges) {
         this.draw_edge(this.data.edges[edge], this.edge_fields_shown);

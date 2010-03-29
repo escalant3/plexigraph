@@ -18,6 +18,11 @@
             self.location.href=url;
         }
 
+        function toggle_nodes(node_types) {
+            url = "toggle_nodes/" + node_types;
+            self.location.href=url;
+        }
+
         function execute_query() {
             query = document.getElementById("query").value;
             url = "interactor_query/" + query;
@@ -42,7 +47,11 @@
             <h3>Topics</h3>
             <div class="topics">
                 {% for key, style in node_style_list %}
-                    <input type="checkbox" checked onclick="alert('{{ style.label }}')"><span style="color:{{ style.color }}">{{ style.label }}</span><br>
+                    <input type="checkbox" onclick="toggle_nodes({{ key }})" 
+                        {% if style.show %}checked{% endif %}>
+                            <span style="color:{{ style.color }}">
+                                {{ style.label }}
+                            </span><br>
                 {% endfor %}
             </div>
     </div>

@@ -10,6 +10,8 @@ from djangovertex.graphview.models import Dataset
 
 def index(request):
     datasets = Dataset.objects.all()
+    request.session.pop('interactor', None)
+    request.session.pop('layout', None)
     return render_to_response('graphview/index.html', {'datasets':datasets})
 
 
@@ -18,13 +20,19 @@ def explore(request, dataset_id):
     styles = dataset.node_styles()
     interactor = request.session.get('interactor')
     if (not interactor):
-        if dataset.data_type == 'plxgh':
-            graph = importers.dictionary_to_nx(dataset.topics.path,
+        try:
+            if dataset.data_type == 'plxgh':
+                graph = importers.dictionary_to_nx(dataset.topics.path,
                                             dataset.relations.path)
-        else:
-            graph = getattr(nx, 'read_%s' % dataset.data_type)(dataset.graph_file)
+            else:
+                graph = getattr(nx, 'read_%s' % dataset.data_type)(dataset.graph_file)
+        except ValueError:
+            return redirect('djangovertex.graphview.views.index')
         interactor = NetworkxInteractor(graph)
         request.session['interactor'] = interactor
+        for key in styles.keys():
+            styles[key]['show'] = True
+        request.session['node_styles'] = styles.copy()
     graph = interactor.graph
     layout = request.session.get('layout')
     if (not layout):
@@ -56,7 +64,8 @@ def explore(request, dataset_id):
                     'node1': edge[0],
                     'node2': edge[1]}
     new_graph = {'nodes': nodes, 'edges':edges}
-    node_style_list = [(key,value) for key,value in styles.iteritems()]
+    node_style_list = [(key,value) for key,value 
+                        in request.session['node_styles'].iteritems()]
     json_graph = simplejson.dumps(new_graph)
     return render_to_response('graphview/explorer.html', 
                                 {'json_graph':json_graph,
@@ -69,6 +78,21 @@ def delete_node(request, dataset_id, node_id):
     if interactor:
         interactor.remove_nodes([int(node_id)])
         request.session['interactor'] = interactor
+    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+
+
+def toggle_nodes(request, dataset_id, node_type):
+    interactor = request.session.get('interactor')
+    if interactor:
+        data = interactor.graph.node
+        node_type = int(node_type)
+        for node in interactor.graph.nodes():
+            if data[node].has_key('type') and data[node]['type'] == node_type:
+                data[node]['_visible'] = not data[node]['_visible']
+        request.session['interactor'] = interactor
+        styles = request.session['node_styles']
+        node_type = str(node_type)
+        styles[node_type]['show'] = not styles[node_type]['show']
     return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
 
 
