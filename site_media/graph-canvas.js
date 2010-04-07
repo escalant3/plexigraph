@@ -21,8 +21,11 @@ function draw() {
             this.draw_node(this.data.nodes[node], this.node_fields_shown);
         }
     };
-    for (var edge in this.data.edges) {
-        this.draw_edge(this.data.edges[edge], this.edge_fields_shown);
+    for (var e in this.data.edges) {
+        edge = this.data.edges[e]
+        if (this.data.nodes[edge.node1]['_visible'] && this.data.nodes[edge.node2]['_visible']) {
+            this.draw_edge(edge, this.edge_fields_shown);
+        }
     };
 }
 
