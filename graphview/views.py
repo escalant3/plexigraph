@@ -130,6 +130,14 @@ def load_state(request, dataset_id):
     return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
 
 
+def delete_isolated(request, dataset_id):
+    interactor = request.session.get('interactor')
+    if interactor:
+        interactor.remove_isolated_nodes()
+        request.session['interactor'] = interactor
+    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+
+
 def interactor_query(request, dataset_id, query):
     interactor = request.session.get('interactor')
     if interactor:
