@@ -1,6 +1,8 @@
+var raphael_object = null;
 var NODE_SIZE = 10;
 var HALF_NODE = NODE_SIZE / 2;
 var NODE_ANIMATION_TIME = 250;
+var show_labels = true;
 
 function RaphaelGraph(_data, _node_fields_shown, _edge_fields_shown) {
     this.paper = Raphael("canvas", 800, 600);
@@ -12,6 +14,7 @@ function RaphaelGraph(_data, _node_fields_shown, _edge_fields_shown) {
     this.draw = draw;
     this.draw_node = draw_node;
     this.draw_edge = draw_edge;
+    raphael_object = this;
 }
 
 function draw() {
@@ -56,7 +59,9 @@ function draw_node(node, fields) {
     c.node.onmouseout = function () {
         c.animate({"scale": "1 1"}, NODE_ANIMATION_TIME);
     };
-    var t = this.paper.text(node.xpos-NODE_SIZE, node.ypos-NODE_SIZE, node["text"]);
+    if (show_labels == true) {
+        var t = this.paper.text(node.xpos-NODE_SIZE, node.ypos-NODE_SIZE, node["text"]);
+    }
 };
 
 function draw_edge(edge, fields) {
@@ -92,4 +97,15 @@ function reset_data() {
     for (var c in cells) {
         cells[c].textContent = "";
     }
+};
+
+function key_check(e) {
+    var evt = window.event ? event : e;
+    var charcode = evt.charCode ? evt.charCode : evt.keyCode;
+    var key_pressed = String.fromCharCode(charcode)
+    switch (key_pressed) {
+        case "l": show_labels = !show_labels;
+    }
+    raphael_object.paper.clear();
+    raphael_object.draw();
 };
