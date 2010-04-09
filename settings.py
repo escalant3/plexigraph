@@ -82,6 +82,8 @@ INSTALLED_APPS = (
     'djangovertex.graphview',
 )
 
+EXPLORER_CANVAS_SIZE = 600
+
 try:
     from local_settings import *
 except ImportError:

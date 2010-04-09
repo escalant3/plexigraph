@@ -18,6 +18,11 @@
             self.location.href=url;
         }
 
+        function expand_node() {
+            url = "expand_node/" + selected_node;
+            self.location.href=url;
+        }
+
         function toggle_nodes(node_types) {
             url = "toggle_nodes/" + node_types;
             self.location.href=url;
@@ -29,7 +34,7 @@
             self.location.href=url;
         }
 
-        document.onkeypress= key_check;
+        document.getElementById("canvas").onkeypress= key_check;
     </script> 
 {% endblock %}
 

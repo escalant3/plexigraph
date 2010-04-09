@@ -6,7 +6,10 @@ import pickle
 from plexigraph.nx.interaction import NetworkxInteractor
 from plexigraph.tools import importers
 
+import settings
 from djangovertex.graphview.models import Dataset
+
+SCALE = settings.EXPLORER_CANVAS_SIZE
 
 def index(request):
     datasets = Dataset.objects.all()
@@ -37,7 +40,7 @@ def explore(request, dataset_id):
     layout = request.session.get('layout')
     if (not layout):
         if not dataset.layout:
-            layout = nx.drawing.spring_layout(graph, scale=600)
+            layout = nx.drawing.spring_layout(graph, scale=SCALE)
             request.session['layout'] = layout
             dataset.layout = pickle.dumps(layout)
             dataset.save()
@@ -99,7 +102,7 @@ def toggle_nodes(request, dataset_id, node_type):
 def relayout(request, dataset_id):
     interactor = request.session.get('interactor')
     if interactor:
-        layout = nx.drawing.spring_layout(interactor.graph, scale=600)
+        layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout
     return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
 
@@ -125,7 +128,7 @@ def load_state(request, dataset_id):
     if interactor:
         interactor.reset_graph()
         request.session['interactor'] = interactor
-        layout = nx.drawing.spring_layout(interactor.graph, scale=600)
+        layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout
     return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
 
@@ -135,6 +138,16 @@ def delete_isolated(request, dataset_id):
     if interactor:
         interactor.remove_isolated_nodes()
         request.session['interactor'] = interactor
+    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+
+
+def expand_node(request, dataset_id, node_id):
+    interactor = request.session.get('interactor')
+    if interactor:
+        interactor.expand_node([int(node_id)])
+        request.session['interactor'] = interactor
+        layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
+        request.session['layout'] = layout
     return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
 
 

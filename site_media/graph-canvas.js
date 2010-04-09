@@ -51,7 +51,7 @@ function draw_node(node, fields) {
             document.getElementById("info-" + f).textContent = node[field_key];
         }
     document.getElementById("delete").disabled = false;
-
+    document.getElementById("expand").disabled = false;
     };
     c.node.onmouseover = function () {
         c.animate({"scale": "2 2"}, NODE_ANIMATION_TIME);
