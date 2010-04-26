@@ -38,7 +38,7 @@ def explore(request, dataset_id):
         for key in styles.keys():
             styles[key]['show'] = True
         request.session['node_styles'] = styles.copy()
-    graph = interactor.graph
+    graph = interactor.get_shown_graph(request.session['node_styles'])
     if graph.number_of_nodes() < settings.MAX_INTERACTIVE_NODES:
         interactive_mode = True
     layout = request.session.get('layout')
@@ -97,17 +97,9 @@ def delete_node(request, dataset_id, node_id):
 
 
 def toggle_nodes(request, dataset_id, node_type):
-    interactor = request.session.get('interactor')
-    if interactor:
-        data = interactor.graph.node
-        node_type = int(node_type)
-        for node in interactor.graph.nodes():
-            if data[node].has_key('type') and data[node]['type'] == node_type:
-                data[node]['_visible'] = not data[node]['_visible']
-        request.session['interactor'] = interactor
-        styles = request.session['node_styles']
-        node_type = str(node_type)
-        styles[node_type]['show'] = not styles[node_type]['show']
+    styles = request.session['node_styles']
+    styles[node_type]['show'] = not styles[node_type]['show']
+    request.session['node_styles'] = styles
     return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
 
 
@@ -178,6 +170,8 @@ def interactor_query(request, dataset_id, query):
         try:
             eval(query)
             request.session['interactor'] = interactor
+            if request.session.has_key('layout'):
+                request.session.pop('layout')
         except:
             print "Fix me"
     return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
