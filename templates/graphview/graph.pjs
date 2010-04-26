@@ -74,15 +74,17 @@ void mousePressed() {
         infoWindow.executeControlPressed();
     } else {
         Node selectedNode = g.nodes[selectedNodeIndex];
-        g.setSelectedNode(selectedNode);
-        selected_node = g.getSelectedNode().id;
-        g.setDragNode(selectedNode);
-        if (mouseButton == LEFT) {
-        } else { // Right click
-            infoX = mouseX - 10 ;
-            infoY = mouseY - 10;
-            infoWindow = new InfoWindow(infoX, infoY);
-            showInfo = true;
+        g.setSelectedNode(selectedNode)
+        if (g.getSelectedNode()) {
+            selected_node = g.getSelectedNode().id;
+            g.setDragNode(selectedNode);
+            if (mouseButton == LEFT) {
+            } else { // Right click
+                infoX = mouseX - 10 ;
+                infoY = 50;
+                infoWindow = new InfoWindow(infoX, infoY);
+                showInfo = true;
+            }
         }
     }
 }

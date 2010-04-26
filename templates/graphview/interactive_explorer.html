@@ -6,39 +6,12 @@
 <script language="javascript" src="/site_media/jquery-1.3.2.min.js"></script>
 {% endblock %}
 
-{% block javascript %}
+{% block raphael %}{% endblock %}
+
+{% block processing %}
     <script type="text/javascript" charset="utf-8"> 
         var nodeTable = {};
-        var selected_node;
-        var gdata = eval({{ json_graph|safe }});
-        var node_fields_shown = ["text-type", "text", "xpos", "ypos", "degree",
-            "clustering", "original-degree", "original-clustering"];
-        var edge_fields_shown = ["node1", "node2"];
-
-        function delete_node() {
-            url = "delete_node/" + selected_node;
-            self.location.href=url;
-        }
-
-        function expand_node() {
-            url = "expand_node/" + selected_node;
-            self.location.href=url;
-        }
-
-        function toggle_nodes(node_types) {
-            url = "toggle_nodes/" + node_types;
-            self.location.href=url;
-        }
-
-        function execute_query() {
-            query = document.getElementById("query").value;
-            url = "interactor_query/" + query;
-            self.location.href=url;
-        }
-
     </script> 
-{% endblock %}
-{% block processing %}
     <script type="application/processing">
         {% include "graphview/graph.pjs" %}
     </script>

@@ -8,15 +8,10 @@
 {% block javascript %}
     <script type="text/javascript" charset="utf-8"> 
         var selected_node;
-        var data = eval({{ json_graph|safe }});
-        var node_fields_shown = ["text-type", "text", "xpos", "ypos", "degree",
+        var gdata = eval({{ json_graph|safe }});
+        var node_fields_shown = ["text-type", "text", "degree",
             "clustering", "original-degree", "original-clustering"];
         var edge_fields_shown = ["node1", "node2"];
-
-        window.onload = function () {    
-            var rafael = new RaphaelGraph(data, node_fields_shown, edge_fields_shown);
-            rafael.draw();
-        }
 
         function delete_node() {
             url = "delete_node/" + selected_node;
@@ -41,6 +36,15 @@
 
         //document.getElementById("canvas").onkeypress= key_check;
     </script> 
+{% endblock %}
+
+{% block raphael %}
+    <script type="text/javascript" charset="utf-8">
+        window.onload = function () {    
+            var rafael = new RaphaelGraph(gdata, node_fields_shown, edge_fields_shown);
+            rafael.draw();
+        }
+    </script>
 {% endblock %}
 
 {% block menu %}
