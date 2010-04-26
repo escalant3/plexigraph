@@ -1,5 +1,5 @@
 import os
-# Django settings for djangovertex project.
+# Django settings for plexigraph project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -64,13 +64,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-ROOT_URLCONF = 'djangovertex.urls'
+ROOT_URLCONF = 'plexigraph.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths
-    '/home/diego/projects/djangovertex/templates'
+    '/home/diego/projects/plexigraph/templates'
 )
 
 INSTALLED_APPS = (
@@ -79,7 +79,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'djangovertex.graphview',
+    'plexigraph.graphview',
 )
 
 EXPLORER_CANVAS_SIZE = 600

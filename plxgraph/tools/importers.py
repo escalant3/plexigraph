@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #*-* coding: utf-8
 
-# plexigraph.tools.importers
+# plxgraph.tools.importers
 # Diego Muñoz Escalante (escalant3 at gmail dot com)
 
 import csv

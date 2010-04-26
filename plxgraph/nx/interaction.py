@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # *-* coding: utf-8 *-*
 
-# plexigraph.nx.interaction
+# plxgraph.nx.interaction
 # Diego Muñoz Escalante (escalant3 at gmail dot com)
 
 import networkx as nx

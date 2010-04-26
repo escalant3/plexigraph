@@ -3,11 +3,11 @@ from django.utils import simplejson
 
 import networkx as nx
 import pickle
-from plexigraph.nx.interaction import NetworkxInteractor
-from plexigraph.tools import importers
+from plxgraph.nx.interaction import NetworkxInteractor
+from plxgraph.tools import importers
 
 import settings
-from djangovertex.graphview.models import Dataset
+from plxgraph.graphview.models import Dataset
 
 SCALE = settings.EXPLORER_CANVAS_SIZE
 
@@ -32,7 +32,7 @@ def explore(request, dataset_id):
             else:
                 graph = getattr(nx, 'read_%s' % dataset.data_type)(dataset.graph_file)
         except ValueError:
-            return redirect('djangovertex.graphview.views.index')
+            return redirect('plexigraph.graphview.views.index')
         interactor = NetworkxInteractor(graph)
         request.session['interactor'] = interactor
         for key in styles.keys():
@@ -93,14 +93,14 @@ def delete_node(request, dataset_id, node_id):
     if interactor:
         interactor.remove_nodes([int(node_id)])
         request.session['interactor'] = interactor
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
 def toggle_nodes(request, dataset_id, node_type):
     styles = request.session['node_styles']
     styles[node_type]['show'] = not styles[node_type]['show']
     request.session['node_styles'] = styles
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
 def relayout(request, dataset_id):
@@ -108,7 +108,7 @@ def relayout(request, dataset_id):
     if interactor:
         layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
 def reset(request, dataset_id):
@@ -116,7 +116,7 @@ def reset(request, dataset_id):
     if interactor:
         request.session.pop('interactor')
         request.session.pop('layout')
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
 def save_state(request, dataset_id):
@@ -124,7 +124,7 @@ def save_state(request, dataset_id):
     if interactor:
         interactor.save_graph()
         request.session['interactor'] = interactor
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
 def load_state(request, dataset_id):
@@ -134,7 +134,7 @@ def load_state(request, dataset_id):
         request.session['interactor'] = interactor
         layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
 def delete_isolated(request, dataset_id):
@@ -142,7 +142,7 @@ def delete_isolated(request, dataset_id):
     if interactor:
         interactor.remove_isolated_nodes()
         request.session['interactor'] = interactor
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
 def expand_node(request, dataset_id, node_id):
@@ -152,7 +152,7 @@ def expand_node(request, dataset_id, node_id):
         request.session['interactor'] = interactor
         layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
 def interactor_query(request, dataset_id, query):
@@ -174,4 +174,4 @@ def interactor_query(request, dataset_id, query):
                 request.session.pop('layout')
         except:
             print "Fix me"
-    return redirect('djangovertex.graphview.views.explore', dataset_id=dataset_id)
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
