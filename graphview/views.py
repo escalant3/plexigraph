@@ -7,7 +7,7 @@ from plxgraph.nx.interaction import NetworkxInteractor
 from plxgraph.tools import importers
 
 import settings
-from plxgraph.graphview.models import Dataset
+from plexigraph.graphview.models import Dataset
 
 SCALE = settings.EXPLORER_CANVAS_SIZE
 
