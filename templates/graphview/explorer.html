@@ -8,6 +8,7 @@
 {% block javascript %}
     <script type="text/javascript" charset="utf-8"> 
         var selected_node;
+        var terminal;
         var gdata = eval({{ json_graph|safe }});
         var node_fields_shown = ["text-type", "text", "degree",
             "clustering", "original-degree", "original-clustering"];
@@ -38,9 +39,11 @@
 
 {% block raphael %}
     <script type="text/javascript" charset="utf-8">
-        window.onload = function () {    
+        window.onload = function () {
             var rafael = new RaphaelGraph(gdata, node_fields_shown, edge_fields_shown);
             rafael.draw();
+            terminalWidget = document.getElementById('query');
+            terminalWidget.onkeydown = onKeyDown;
         }
     </script>
 {% endblock %}
@@ -86,17 +89,8 @@
     <div id="content">
         <div id="canvas"> </div>
         <div id="info">
-            {% include "graphview/infoTable.html" %}
             {% include "graphview/actions.html" %}
+            {% include "graphview/infoTable.html" %}
         </div>
     </div>
 {% endblock %}
-
-{% block bottombar %}
-    <div id="commandbar">
-        <input id="query" type="text" size="120"/>
-        <input id="btn_query" type="button" value="Query" onclick="execute_query()"/>
-    </div>
-{% endblock %}
-
-

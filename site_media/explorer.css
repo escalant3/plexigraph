@@ -1,7 +1,11 @@
+body {
+background-image:url(background.png);
+background-repeat:repeat-x;
+}
+
 #container{ 
 text-align: left; 
-width: 1200px; 
-background-color : #ffffff; 
+width: 1200px;
 margin: auto; 
 }
 
@@ -33,8 +37,14 @@ background-color: cornflowerblue;
 text-align: left;
 width: 180px;
 padding: 5px;
-background-color : #FFF790;
+/*background-color : #FFF790;*/
 float: right;
+}
+
+#commandbar {
+float: left;
+padding-left:230px;
+padding-top:10px;
 }
 
 table{
@@ -45,7 +55,12 @@ font-size: x-small;
 font-size: x-small;
 background-color : #000000;
 padding: 10px;
+}
 
-a{
+a.action{
 font-size: x-small;
+}
+
+ul.actions {
+list-style-type: none;
 }

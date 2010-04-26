@@ -70,8 +70,10 @@ function draw_edge(edge, fields) {
                     "L" + this.data.nodes[edge.node2].xpos + " " + 
                     this.data.nodes[edge.node2].ypos;
     var e = this.paper.path(string_path);
-    e.node.onclick = function () {
+    e.node.onclick = function (e) {
+        console.log(e);
         reset_data();
+        selected_node = null;
         document.getElementById("ID").textContent = edge.ID;
         document.getElementById("id-label").textContent = "Edge ID";
         document.getElementById("info-header").textContent = "Edge Info";
@@ -80,6 +82,8 @@ function draw_edge(edge, fields) {
             document.getElementById("info-" + f + "-label").textContent = field_key;
             document.getElementById("info-" + f).textContent = edge[field_key];
         }
+        document.getElementById("delete").disabled = true;
+        document.getElementById("expand").disabled = true;
     }
     e.node.onmouseover = function () {
         e.attr("stroke", "red");
