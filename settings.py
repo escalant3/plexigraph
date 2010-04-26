@@ -83,7 +83,7 @@ INSTALLED_APPS = (
 )
 
 EXPLORER_CANVAS_SIZE = 600
-MAX_INTERACTIVE_NODES = 75
+MAX_INTERACTIVE_NODES = 50
 
 try:
     from local_settings import *

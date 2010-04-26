@@ -17,35 +17,15 @@
     </script>
 {% endblock %}
 
-{% block menu %}
-    <div id="menu">
-        <h3>Dataset</h3>
-            <table class="dataset">
-                <tr>
-                    <td>Name: </td>
-                    <td>{{ dataset.name }}</td>
-                </tr>
-                <tr>
-                    <td>Description: </td>
-                    <td>{{ dataset.description }}</td>
-                </tr>
-            </table>
-            <h3>Topics</h3>
-            <div class="topics">
-                {% for key, style in node_style_list %}
-                    <input type="checkbox" onclick="toggle_nodes({{ key }})" 
-                        {% if style.show %}checked{% endif %}>
-                            <span style="color:{{ style.color }}">
-                                {{ style.label }}
-                            </span><br>
-                {% endfor %}
-            </div>
+{% block content %}
+    <div id="content">
+        <canvas id="canvas" width="800px" height="600px"></canvas>
+        <div id="info">
+            {% include "graphview/actions.html" %}
+        </div>
     </div>
 {% endblock %}
 
-{% block content %}
-    <canvas id="procanvas" width="1000px" height="600px"></canvas>
-{% endblock %}
 {% block extra %}
 
 {% endblock %}

@@ -72,6 +72,8 @@ def explore(request, dataset_id):
                     'node1': edge[0],
                     'node2': edge[1]}
     new_graph = {'nodes': nodes, 'edges':edges}
+    metadata_list = [(key, value) for key, value 
+                        in interactor.get_metadata().iteritems()]
     node_style_list = [(key,value) for key,value 
                         in request.session['node_styles'].iteritems()]
     json_graph = simplejson.dumps(new_graph)
@@ -82,6 +84,7 @@ def explore(request, dataset_id):
     return render_to_response(template, 
                                 {'json_graph':json_graph,
                                 'dataset': dataset,
+                                'metadata_list': metadata_list,
                                 'node_style_list': node_style_list})
 
 
