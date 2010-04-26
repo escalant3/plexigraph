@@ -50,8 +50,7 @@ function draw_node(node, fields) {
             document.getElementById("info-" + f + "-label").textContent = field_key;
             document.getElementById("info-" + f).textContent = node[field_key];
         }
-    document.getElementById("delete").disabled = false;
-    document.getElementById("expand").disabled = false;
+    show_action_box(node.xpos, node.ypos);
     };
     c.node.onmouseover = function () {
         c.animate({"scale": "2 2"}, NODE_ANIMATION_TIME);
@@ -113,3 +112,12 @@ function key_check(e) {
     raphael_object.paper.clear();
     raphael_object.draw();
 };
+
+function show_action_box(xpos, ypos) {
+    xmargin=200;
+    ymargin=5;
+    document.getElementById('floating').style.top = (ypos+ymargin)+"px";
+    document.getElementById('floating').style.left = (xpos+xmargin)+"px";
+    document.getElementById('floating').style.display='block';
+    return;
+    }

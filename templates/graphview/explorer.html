@@ -91,6 +91,13 @@
         <div id="info">
             {% include "graphview/actions.html" %}
             {% include "graphview/infoTable.html" %}
+            <div id="floating" onmouseout="this.style.display='none'"
+                               onclick="this.style.display='none'"
+                               onmouseover="this.style.display='block'">
+                <input id="delete" type="button" value="Delete node" onclick="delete_node()"/>
+                <br/>
+                <input id="expand" type="button" value="Expand node" onclick="expand_node()"/>
+            </div>
         </div>
     </div>
 {% endblock %}

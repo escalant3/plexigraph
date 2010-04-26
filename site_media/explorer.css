@@ -64,3 +64,13 @@ font-size: x-small;
 ul.actions {
 list-style-type: none;
 }
+
+#floating
+{
+position: absolute;
+display:none;
+
+/*width:220px;
+border:1px solid #808080;
+background-color:#f1f1f1;*/
+}
