@@ -11,6 +11,7 @@ from djangovertex.graphview.models import Dataset
 
 SCALE = settings.EXPLORER_CANVAS_SIZE
 
+
 def index(request):
     datasets = Dataset.objects.all()
     request.session.pop('interactor', None)
@@ -22,6 +23,7 @@ def explore(request, dataset_id):
     dataset = Dataset.objects.get(pk=dataset_id)
     styles = dataset.node_styles()
     interactor = request.session.get('interactor')
+    interactive_mode = False
     if (not interactor):
         try:
             if dataset.data_type == 'plxgh':
@@ -37,8 +39,10 @@ def explore(request, dataset_id):
             styles[key]['show'] = True
         request.session['node_styles'] = styles.copy()
     graph = interactor.graph
+    if graph.number_of_nodes() < settings.MAX_INTERACTIVE_NODES:
+        interactive_mode = True
     layout = request.session.get('layout')
-    if (not layout):
+    if (not layout and not interactive_mode):
         if not dataset.layout:
             layout = nx.drawing.spring_layout(graph, scale=SCALE)
             request.session['layout'] = layout
@@ -52,8 +56,9 @@ def explore(request, dataset_id):
     for node in graph.nodes():
         nodes[node] = graph.node[node].copy()
         nodes[node]['ID'] = node
-        nodes[node]['xpos'] = layout[node][0]
-        nodes[node]['ypos'] = layout[node][1]
+        if (not interactive_mode):
+            nodes[node]['xpos'] = layout[node][0]
+            nodes[node]['ypos'] = layout[node][1]
         nodes[node].update(interactor.node_data(node))
         try:
             nodes[node]['color'] = styles[str(graph.node[node]['type'])]['color']
@@ -70,7 +75,11 @@ def explore(request, dataset_id):
     node_style_list = [(key,value) for key,value 
                         in request.session['node_styles'].iteritems()]
     json_graph = simplejson.dumps(new_graph)
-    return render_to_response('graphview/explorer.html', 
+    if interactive_mode:
+        template = 'graphview/interactive_explorer.html'
+    else:
+        template = 'graphview/explorer.html'
+    return render_to_response(template, 
                                 {'json_graph':json_graph,
                                 'dataset': dataset,
                                 'node_style_list': node_style_list})

@@ -1,22 +1,19 @@
-{% extends "graphview/base.html" %}
+{% extends "graphview/explorer.html" %}
 
 {% block javascript_imports %}
-<script language="javascript" src="/site_media/raphael-min.js"></script>
-<script language="javascript" src="/site_media/graph-canvas.js"></script>
+<script language="javascript" src="/site_media/processing.init.js"></script>
+<script language="javascript" src="/site_media/processing.min.js"></script>
+<script language="javascript" src="/site_media/jquery-1.3.2.min.js"></script>
 {% endblock %}
 
 {% block javascript %}
     <script type="text/javascript" charset="utf-8"> 
+        var nodeTable = {};
         var selected_node;
-        var data = eval({{ json_graph|safe }});
+        var gdata = eval({{ json_graph|safe }});
         var node_fields_shown = ["text-type", "text", "xpos", "ypos", "degree",
             "clustering", "original-degree", "original-clustering"];
         var edge_fields_shown = ["node1", "node2"];
-
-        window.onload = function () {    
-            var rafael = new RaphaelGraph(data, node_fields_shown, edge_fields_shown);
-            rafael.draw();
-        }
 
         function delete_node() {
             url = "delete_node/" + selected_node;
@@ -39,8 +36,12 @@
             self.location.href=url;
         }
 
-        //document.getElementById("canvas").onkeypress= key_check;
     </script> 
+{% endblock %}
+{% block processing %}
+    <script type="application/processing">
+        {% include "graphview/graph.pjs" %}
+    </script>
 {% endblock %}
 
 {% block menu %}
@@ -70,20 +71,10 @@
 {% endblock %}
 
 {% block content %}
-    <div id="content">
-        <div id="canvas"> </div>
-        <div id="info">
-            {% include "graphview/infoTable.html" %}
-            {% include "graphview/actions.html" %}
-        </div>
-    </div>
+    <canvas id="procanvas" width="1000px" height="600px"></canvas>
 {% endblock %}
+{% block extra %}
 
-{% block bottombar %}
-    <div id="commandbar">
-        <input id="query" type="text" size="120"/>
-        <input id="btn_query" type="button" value="Query" onclick="execute_query()"/>
-    </div>
 {% endblock %}
 
 
