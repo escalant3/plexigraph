@@ -8,7 +8,7 @@ var historyLog = []
 var terminalWidget = null;
 
 function onKeyDown(e) {
-    if (sessionStorage.getItem('historyLog') == "") {
+    if (sessionStorage.getItem('historyLog') == "" || sessionStorage.getItem('historyLog') == null) {
         sessionStorage.setItem('historyLog', JSON.stringify([]));
     }
     historyLog = JSON.parse(sessionStorage.getItem('historyLog'));
