@@ -25,8 +25,8 @@ def dictionary_to_nx(topic_file, relation_file, styles_dict = None):
     f.close()
     relationships = eval(data)
     if styles_dict:
-        TOPIC_STRUCTURE = style_dict['topic_structure']
-        RELATION_NODE_INFO = style_dict['relation_node_info']
+        TOPIC_STRUCTURE = styles_dict['topic_structure']
+        RELATION_NODE_INFO = styles_dict['relation_node_info']
     else:
         from styles import TOPIC_STRUCTURE, RELATION_NODE_INFO
     graph = create_nodes(topics, TOPIC_STRUCTURE)
@@ -39,18 +39,18 @@ def create_nodes(topics, TOPIC_STRUCTURE):
     for topic in topics:
         node_id = None
         node_info = {}
-        for field in range(len(TOPIC_STRUCTURE)):
+        for field in TOPIC_STRUCTURE.keys():
             if TOPIC_STRUCTURE[field][0] == "ID":
                 assert TOPIC_STRUCTURE[field][1] == 'int'
-                node_id = int(topic[field])
+                node_id = int(topic[int(field)])
             elif TOPIC_STRUCTURE[field][1] == 'int':
-                node_info[TOPIC_STRUCTURE[field][0]] = int(topic[field])
+                node_info[TOPIC_STRUCTURE[field][0]] = int(topic[int(field)])
             elif TOPIC_STRUCTURE[field][1] == 'string':
-                node_info[TOPIC_STRUCTURE[field][0]] = topic[field]
-            if not node_id:
-                raise Error("An ID field must be specified")
-            new_node = graph.add_node(node_id)
-            graph.node[node_id] = node_info
+                node_info[TOPIC_STRUCTURE[field][0]] = topic[int(field)]
+        if not node_id:
+            raise Error("An ID field must be specified")
+        new_node = graph.add_node(node_id)
+        graph.node[node_id] = node_info
     return graph
 
 

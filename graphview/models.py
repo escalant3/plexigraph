@@ -41,6 +41,10 @@ class Dataset(models.Model):
         return "%s: %s" % (self.name, self.description)
 
 
+    def get_configuration(self):
+        return simplejson.loads(self.configuration)
+
+
     def node_styles(self):
         configuration = simplejson.loads(self.configuration)
         return  configuration["node_styles"]

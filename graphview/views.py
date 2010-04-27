@@ -28,12 +28,13 @@ def explore(request, dataset_id):
         try:
             if dataset.data_type == 'plxgh':
                 graph = importers.dictionary_to_nx(dataset.topics.path,
-                                            dataset.relations.path)
+                                            dataset.relations.path,
+                                            dataset.get_configuration())
             else:
                 graph = getattr(nx, 'read_%s' % dataset.data_type)(dataset.graph_file)
         except ValueError:
             return redirect('plexigraph.graphview.views.index')
-        interactor = NetworkxInteractor(graph)
+        interactor = NetworkxInteractor(graph, dataset.get_configuration())
         request.session['interactor'] = interactor
         for key in styles.keys():
             styles[key]['show'] = True
