@@ -3,6 +3,8 @@ var NODE_SIZE = 10;
 var HALF_NODE = NODE_SIZE / 2;
 var NODE_ANIMATION_TIME = 250;
 var show_labels = true;
+var multiselection = false;
+var multiselection_table = []
 
 function RaphaelGraph(_data, _node_fields_shown, _edge_fields_shown) {
     this.paper = Raphael("canvas", 800, 600);
@@ -50,7 +52,12 @@ function draw_node(node, fields) {
             document.getElementById("info-" + f + "-label").textContent = field_key;
             document.getElementById("info-" + f).textContent = node[field_key];
         }
-    show_action_box(node.xpos, node.ypos);
+        if (!multiselection) {
+            show_action_box(node.xpos, node.ypos);
+        } else {
+            multiselection_table.push(selected_node);
+            show_multiselection_box();
+        };
     };
     c.node.onmouseover = function () {
         c.animate({"scale": "2 2"}, NODE_ANIMATION_TIME);
@@ -70,7 +77,6 @@ function draw_edge(edge, fields) {
                     this.data.nodes[edge.node2].ypos;
     var e = this.paper.path(string_path);
     e.node.onclick = function (e) {
-        console.log(e);
         reset_data();
         selected_node = null;
         document.getElementById("ID").textContent = edge.ID;
@@ -116,8 +122,20 @@ function key_check(e) {
 function show_action_box(xpos, ypos) {
     xmargin=200;
     ymargin=5;
+    document.getElementById('delete').value = "Delete node " + selected_node;
+    document.getElementById('expand').value = "Expand node " + selected_node;
+    document.getElementById('multiselect').value = "Start multiselection";
     document.getElementById('floating').style.top = (ypos+ymargin)+"px";
     document.getElementById('floating').style.left = (xpos+xmargin)+"px";
     document.getElementById('floating').style.display='block';
     return;
-    }
+};
+
+function show_multiselection_box() {
+    document.getElementById('delete').value = "Delete selected nodes";
+    document.getElementById('expand').value = "Expand selected nodes";
+    document.getElementById('multiselect').value = "Cancel multiselection";
+    document.getElementById('floating').style.top = "10px";
+    document.getElementById('floating').style.left = "1000px";
+    document.getElementById('floating').style.display = "block";
+}

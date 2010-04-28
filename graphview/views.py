@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response, redirect, HttpResponse
 from django.utils import simplejson
 
 import networkx as nx
@@ -89,10 +89,12 @@ def explore(request, dataset_id):
                                 'node_style_list': node_style_list})
 
 
-def delete_node(request, dataset_id, node_id):
+def delete_nodes(request, dataset_id, node_list):
+    node_list = node_list.split(',')
     interactor = request.session.get('interactor')
     if interactor:
-        interactor.remove_nodes([int(node_id)])
+        for node_id in node_list:
+            interactor.remove_nodes([int(node_id)])
         request.session['interactor'] = interactor
     return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
@@ -146,10 +148,12 @@ def delete_isolated(request, dataset_id):
     return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
-def expand_node(request, dataset_id, node_id):
+def expand_nodes(request, dataset_id, node_list):
+    node_list = node_list.split(',')
     interactor = request.session.get('interactor')
     if interactor:
-        interactor.expand_node([int(node_id)])
+        for node_id in node_list:
+            interactor.expand_node([int(node_id)])
         request.session['interactor'] = interactor
         layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout

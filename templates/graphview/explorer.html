@@ -15,12 +15,22 @@
         var edge_fields_shown = ["node1", "node2"];
 
         function delete_node() {
-            url = "delete_node/" + selected_node;
+            if (multiselection) {
+                multiselection = false;
+                url = "delete_nodes/" + multiselection_table;
+            } else {
+                url = "delete_nodes/" + selected_node;
+            }
             self.location.href=url;
         }
 
         function expand_node() {
-            url = "expand_node/" + selected_node;
+            if (multiselection) {
+                multiselection = false;
+                url = "expand_nodes/" + multiselection_table;
+            } else {
+                url = "expand_nodes/" + selected_node;
+            }
             self.location.href=url;
         }
 
@@ -33,6 +43,16 @@
             query = document.getElementById("query").value;
             url = "interactor_query/" + query;
             self.location.href=url;
+        }
+
+        function multi_select() {
+            if (!multiselection) {
+                multiselection_table = []
+                multiselection_table.push(selected_node);
+                multiselection = true;
+            } else {
+                multiselection = false;
+            }
         }
     </script> 
 {% endblock %}
@@ -97,7 +117,16 @@
                 <input id="delete" type="button" value="Delete node" onclick="delete_node()"/>
                 <br/>
                 <input id="expand" type="button" value="Expand node" onclick="expand_node()"/>
+                <br/>
+                <input id="multiselect" type="button" value="Multi selection" onclick="multi_select()"/>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block bottombar %}
+<div id="commandbar">
+    <input id="query" type="text" size="60"/>
+    <input id="btn_query" type="button" value="Query" onclick="execute_query()"/>
+</div>
 {% endblock %}

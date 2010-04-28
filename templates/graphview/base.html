@@ -14,17 +14,11 @@
 <body>
 {% block processing %}{% endblock %}
 <div id="container">
-    {% block header %}
-    {% endblock %}
+    {% block header %}{% endblock %}
     {% block menu %}{% endblock %}
     {% block content %}{% endblock %}
 </div>
-{% block bottombar %}
-<div id="commandbar">
-    <input id="query" type="text" size="60"/>
-    <input id="btn_query" type="button" value="Query" onclick="execute_query()"/>
-</div>
-{% endblock %}
+{% block bottombar %}{% endblock %}
 {% block extra %}{% endblock %}
 </body>
 </html>
