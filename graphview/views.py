@@ -94,7 +94,7 @@ def delete_nodes(request, dataset_id, node_list):
     interactor = request.session.get('interactor')
     if interactor:
         for node_id in node_list:
-            interactor.remove_nodes([int(node_id)])
+            interactor.remove_nodes([node_id])
         request.session['interactor'] = interactor
     return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
@@ -153,7 +153,7 @@ def expand_nodes(request, dataset_id, node_list):
     interactor = request.session.get('interactor')
     if interactor:
         for node_id in node_list:
-            interactor.expand_node([int(node_id)])
+            interactor.expand_node([node_id])
         request.session['interactor'] = interactor
         layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout

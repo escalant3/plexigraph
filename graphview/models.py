@@ -47,4 +47,4 @@ class Dataset(models.Model):
 
     def node_styles(self):
         configuration = simplejson.loads(self.configuration)
-        return  configuration["node_styles"]
+        return configuration["node_styles"]
