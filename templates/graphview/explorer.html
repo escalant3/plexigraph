@@ -8,6 +8,7 @@
 {% block javascript %}
     <script type="text/javascript" charset="utf-8"> 
         var selected_node;
+        var selected_edge;
         var terminal;
         var gdata = eval({{ json_graph|safe }});
         var node_fields_shown = ["text-type", "text", "degree",
@@ -21,6 +22,12 @@
             } else {
                 url = "delete_nodes/" + selected_node;
             }
+            self.location.href=url;
+        }
+
+        function delete_edge() {
+            edge = gdata.edges[selected_edge];
+            url = "delete_edges/" + edge['node1'] + "," + edge['node2'];
             self.location.href=url;
         }
 
@@ -111,14 +118,20 @@
         <div id="info">
             {% include "graphview/actions.html" %}
             {% include "graphview/infoTable.html" %}
-            <div id="floating" onmouseout="this.style.display='none'"
+            <div id="floating_node_menu" onmouseout="this.style.display='none'"
                                onclick="this.style.display='none'"
                                onmouseover="this.style.display='block'">
-                <input id="delete" type="button" value="Delete node" onclick="delete_node()"/>
+                <input id="delete_node" type="button" value="Delete node" onclick="delete_node()"/>
                 <br/>
-                <input id="expand" type="button" value="Expand node" onclick="expand_node()"/>
+                <input id="expand_node" type="button" value="Expand node" onclick="expand_node()"/>
                 <br/>
-                <input id="multiselect" type="button" value="Multi selection" onclick="multi_select()"/>
+                <input id="multiselect_node" type="button" value="Multi selection" onclick="multi_select()"/>
+            </div>
+            <div id="floating_edge_menu" onmouseout="this.style.display='none'"
+                               onclick="this.style.display='none'"
+                               onmouseover="this.style.display='block'">
+                <input id="delete_edge" type="button" value="Delete node" onclick="delete_edge()"/>
+                <br/>
             </div>
         </div>
     </div>

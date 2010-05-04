@@ -99,6 +99,16 @@ def delete_nodes(request, dataset_id, node_list):
     return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
 
 
+def delete_edges(request, dataset_id, edge_list):
+    edge_list = zip(*[iter(edge_list.split(','))]*2)
+    interactor = request.session.get('interactor')
+    if interactor:
+        for edge_tuple in edge_list:
+            interactor.remove_edges([edge_tuple])
+        request.session['interactor'] = interactor
+    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+
+
 def toggle_nodes(request, dataset_id, node_type):
     styles = request.session['node_styles']
     styles[node_type]['show'] = not styles[node_type]['show']

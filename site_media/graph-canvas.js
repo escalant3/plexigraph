@@ -2,6 +2,8 @@ var raphael_object = null;
 var NODE_SIZE = 10;
 var HALF_NODE = NODE_SIZE / 2;
 var NODE_ANIMATION_TIME = 250;
+var XMARGIN = 200;
+var YMARGIN = 5;
 var show_labels = true;
 var multiselection = false;
 var multiselection_table = []
@@ -44,6 +46,7 @@ function draw_node(node, fields) {
     c.node.onclick = function() {
         reset_data();
         selected_node = node.ID;
+        selected_edge = null;
         document.getElementById("ID").textContent = node.ID;
         document.getElementById("id-label").textContent = "Node ID";
         document.getElementById("info-header").textContent = "Node Info";
@@ -53,10 +56,10 @@ function draw_node(node, fields) {
             document.getElementById("info-" + f).textContent = node[field_key];
         }
         if (!multiselection) {
-            show_action_box(node.xpos, node.ypos);
+            show_node_action_box(node.xpos + XMARGIN, node.ypos + YMARGIN);
         } else {
             multiselection_table.push(selected_node);
-            show_multiselection_box();
+            show_node_multiselection_box();
         };
     };
     c.node.onmouseover = function () {
@@ -71,14 +74,15 @@ function draw_node(node, fields) {
 };
 
 function draw_edge(edge, fields) {
-    string_path = "M" + this.data.nodes[edge.node1].xpos + " " + 
-                    this.data.nodes[edge.node1].ypos + 
-                    "L" + this.data.nodes[edge.node2].xpos + " " + 
-                    this.data.nodes[edge.node2].ypos;
+    node1 = this.data.nodes[edge.node1];
+    node2 = this.data.nodes[edge.node2];
+    string_path = "M" + node1.xpos + " " + node1.ypos + 
+                    "L" + node2.xpos + " " + node2.ypos;
     var e = this.paper.path(string_path);
-    e.node.onclick = function (e) {
+    e.node.onclick = function (event) {
         reset_data();
         selected_node = null;
+        selected_edge = edge.ID;
         document.getElementById("ID").textContent = edge.ID;
         document.getElementById("id-label").textContent = "Edge ID";
         document.getElementById("info-header").textContent = "Edge Info";
@@ -87,8 +91,9 @@ function draw_edge(edge, fields) {
             document.getElementById("info-" + f + "-label").textContent = field_key;
             document.getElementById("info-" + f).textContent = edge[field_key];
         }
-        document.getElementById("delete").disabled = true;
-        document.getElementById("expand").disabled = true;
+        xpos = event.clientX;
+        ypos = event.clientY;
+        show_edge_action_box(xpos, ypos);
     }
     e.node.onmouseover = function () {
         e.attr("stroke", "red");
@@ -119,23 +124,28 @@ function key_check(e) {
     raphael_object.draw();
 };
 
-function show_action_box(xpos, ypos) {
-    xmargin=200;
-    ymargin=5;
-    document.getElementById('delete').value = "Delete node " + selected_node;
-    document.getElementById('expand').value = "Expand node " + selected_node;
-    document.getElementById('multiselect').value = "Start multiselection";
-    document.getElementById('floating').style.top = (ypos+ymargin)+"px";
-    document.getElementById('floating').style.left = (xpos+xmargin)+"px";
-    document.getElementById('floating').style.display='block';
+function show_node_action_box(xpos, ypos) {
+    document.getElementById('delete_node').value = "Delete node " + selected_node;
+    document.getElementById('expand_node').value = "Expand node " + selected_node;
+    document.getElementById('multiselect_node').value = "Start multiselection";
+    document.getElementById('floating_node_menu').style.top = (ypos)+"px";
+    document.getElementById('floating_node_menu').style.left = (xpos)+"px";
+    document.getElementById('floating_node_menu').style.display='block';
     return;
 };
 
-function show_multiselection_box() {
-    document.getElementById('delete').value = "Delete selected nodes";
-    document.getElementById('expand').value = "Expand selected nodes";
-    document.getElementById('multiselect').value = "Cancel multiselection";
-    document.getElementById('floating').style.top = "10px";
-    document.getElementById('floating').style.left = "1000px";
-    document.getElementById('floating').style.display = "block";
+function show_edge_action_box(xpos, ypos) {
+    document.getElementById('delete_edge').value = "Delete edge " + selected_edge;
+    document.getElementById('floating_edge_menu').style.top = ypos+"px";
+    document.getElementById('floating_edge_menu').style.left = xpos+"px";
+    document.getElementById('floating_edge_menu').style.display='block';
+};
+
+function show_node_multiselection_box() {
+    document.getElementById('delete_node').value = "Delete selected nodes";
+    document.getElementById('expand_node').value = "Expand selected nodes";
+    document.getElementById('multiselect_node').value = "Cancel multiselection";
+    document.getElementById('floating_node_menu').style.top = "10px";
+    document.getElementById('floating_node_menu').style.left = "1000px";
+    document.getElementById('floating_node_menu').style.display = "block";
 }

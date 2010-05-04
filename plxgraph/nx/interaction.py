@@ -56,6 +56,12 @@ class NetworkxInteractor():
             self.graph.remove_node(node)
 
 
+    def remove_edges(self, edges):
+        ''' Removes a list of edges'''
+        for edge in edges:
+            self.graph.remove_edge(edge[0], edge[1])
+
+
     def remove_isolated_nodes(self):
         ''' Removes nodes without connection '''
         for node in self.graph.nodes():

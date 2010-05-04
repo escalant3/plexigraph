@@ -65,7 +65,8 @@ ul.actions {
 list-style-type: none;
 }
 
-#floating
+#floating_node_menu,
+#floating_edge_menu
 {
 position: absolute;
 display:none;
