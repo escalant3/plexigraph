@@ -32,7 +32,7 @@ void resize() {
 void setup() {
     g = new Graph();
     for(var i in gdata.nodes) {
-        g.addNode(nodeTable[parseInt(i)] =new Node(i, gdata.nodes[i]));
+        g.addNode(nodeTable[i] =new Node(i, gdata.nodes[i]));
     }
     for(var i in gdata.edges) {
        g.addEdge(new Edge(nodeTable[gdata.edges[i].node1], nodeTable[gdata.edges[i].node2]));
