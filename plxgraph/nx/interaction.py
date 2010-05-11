@@ -97,6 +97,12 @@ class NetworkxInteractor():
         self.show_nodes_neighborhood(nodes_to_show, depth)
 
 
+    def show_nodes_by_field(self, field, value, depth=1):
+        ''' Shows nodes with the field matching the given value '''
+        nodes_to_show = self.nodes_by_field(self.original_graph, field, value)
+        self.show_nodes_neighborhood(nodes_to_show, depth)
+
+
     def filter_nodes_by_text(self, text, depth=1):
         ''' Filters nodes with the "text" label matching the given text '''
         nodes_to_show = self.nodes_by_field(self.graph, 'text', text)
@@ -185,7 +191,8 @@ class NetworkxInteractor():
         self.shown_graph = self.graph.subgraph(self.graph.nodes())
         for node in self.shown_graph.nodes():
             node_type = str(self.shown_graph.node[node].get('type'))
-            if node_type and not style_dictionary[node_type]['show']:
+            if node_type and style_dictionary.get(node_type) \
+                            and not style_dictionary[node_type]['show']:
                 self.shown_graph.remove_node(node)
         return self.shown_graph
 

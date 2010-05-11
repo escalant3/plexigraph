@@ -63,13 +63,19 @@ def explore(request, dataset_id):
 
 def set_graph_data(request, interactor, dataset, styles):
     graph = interactor.get_shown_graph(request.session['node_styles'])
+    if graph.number_of_nodes() > settings.MAX_DRAWING_NODES:
+        print 'Too many nodes to show'
+        return ({'nodes': {}, 'edges': {}}, False)
     if graph.number_of_nodes() < settings.MAX_INTERACTIVE_NODES:
         interactive_mode = True
     else:
         interactive_mode = False
     layout = request.session.get('layout')
     if (not layout and not interactive_mode):
-        layout = nx.drawing.spring_layout(graph, scale=SCALE)
+        try:
+            layout = nx.drawing.spring_layout(graph, scale=SCALE)
+        except:
+            layout = nx.drawing.random_layout(graph)
         request.session['layout'] = layout
     nodes = {}
     edges = {}
