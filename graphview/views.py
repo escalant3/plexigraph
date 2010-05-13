@@ -39,19 +39,44 @@ def explore(request, dataset_id):
         for key in styles.keys():
             styles[key]['show'] = True
         request.session['node_styles'] = styles.copy()
+        new_graph = {'nodes': {}, 'edges':{}}
+    else:
+        new_graph, interactive_mode = set_graph_data(request,
+                                                    interactor,
+                                                    dataset,
+                                                    styles)
+    metadata_list = [(key, value) for key, value 
+                        in interactor.get_metadata().iteritems()]
+    node_style_list = [(key,value) for key,value 
+                        in request.session['node_styles'].iteritems()]
+    json_graph = simplejson.dumps(new_graph)
+    if interactive_mode:
+        template = 'graphview/interactive_explorer.html'
+    else:
+        template = 'graphview/explorer.html'
+    return render_to_response(template, 
+                                {'json_graph':json_graph,
+                                'dataset': dataset,
+                                'metadata_list': metadata_list,
+                                'node_style_list': node_style_list})
+
+
+def set_graph_data(request, interactor, dataset, styles):
     graph = interactor.get_shown_graph(request.session['node_styles'])
+    if graph.number_of_nodes() > settings.MAX_DRAWING_NODES:
+        print 'Too many nodes to show'
+        return ({'nodes': {}, 'edges': {}}, False)
     if graph.number_of_nodes() < settings.MAX_INTERACTIVE_NODES:
         interactive_mode = True
+    else:
+        interactive_mode = False
     layout = request.session.get('layout')
     if (not layout and not interactive_mode):
-        if not dataset.layout:
+        try:
             layout = nx.drawing.spring_layout(graph, scale=SCALE)
-            request.session['layout'] = layout
-            dataset.layout = pickle.dumps(layout)
-            dataset.save()
-        else:
-            layout = dataset.layout
-            request.session['layout'] = layout
+        except:
+            layout = nx.drawing.random_layout(graph)
+        request.session['layout'] = layout
     nodes = {}
     edges = {}
     for node in graph.nodes():
@@ -72,21 +97,7 @@ def explore(request, dataset_id):
         edges[i] = {'ID': i,
                     'node1': edge[0],
                     'node2': edge[1]}
-    new_graph = {'nodes': nodes, 'edges':edges}
-    metadata_list = [(key, value) for key, value 
-                        in interactor.get_metadata().iteritems()]
-    node_style_list = [(key,value) for key,value 
-                        in request.session['node_styles'].iteritems()]
-    json_graph = simplejson.dumps(new_graph)
-    if interactive_mode:
-        template = 'graphview/interactive_explorer.html'
-    else:
-        template = 'graphview/explorer.html'
-    return render_to_response(template, 
-                                {'json_graph':json_graph,
-                                'dataset': dataset,
-                                'metadata_list': metadata_list,
-                                'node_style_list': node_style_list})
+    return ({'nodes': nodes, 'edges':edges}, interactive_mode)
 
 
 def delete_nodes(request, dataset_id, node_list):
