@@ -185,7 +185,8 @@ class NetworkxInteractor():
         self.shown_graph = self.graph.subgraph(self.graph.nodes())
         for node in self.shown_graph.nodes():
             node_type = str(self.shown_graph.node[node].get('type'))
-            if node_type and not style_dictionary[node_type]['show']:
+            if node_type and style_dictionary.get(node_type) \
+                and not style_dictionary[node_type]['show']:
                 self.shown_graph.remove_node(node)
         return self.shown_graph
 
