@@ -9,7 +9,7 @@ var multiselection = false;
 var multiselection_table = []
 
 function RaphaelGraph(_data, _node_fields_shown, _edge_fields_shown) {
-    this.paper = Raphael("canvas", 800, 600);
+    this.paper = Raphael("canvas", 800, 800);
     this.node_fields_shown = _node_fields_shown;
     this.edge_fields_shown = _edge_fields_shown;
     this.width = this.paper.width;
@@ -47,14 +47,7 @@ function draw_node(node, fields) {
         reset_data();
         selected_node = node.ID;
         selected_edge = null;
-        document.getElementById("ID").textContent = node.ID;
-        document.getElementById("id-label").textContent = "Node ID";
-        document.getElementById("info-header").textContent = "Node Info";
-        for (var f in fields) {
-            field_key = fields[f];
-            document.getElementById("info-" + f + "-label").textContent = field_key;
-            document.getElementById("info-" + f).textContent = node[field_key];
-        }
+        info_html = info_as_table(node);
         if (!multiselection) {
             show_node_action_box(node.xpos + XMARGIN, node.ypos + YMARGIN);
         } else {
@@ -83,14 +76,7 @@ function draw_edge(edge, fields) {
         reset_data();
         selected_node = null;
         selected_edge = edge.ID;
-        document.getElementById("ID").textContent = edge.ID;
-        document.getElementById("id-label").textContent = "Edge ID";
-        document.getElementById("info-header").textContent = "Edge Info";
-        for (var f in fields) {
-            field_key = fields[f];
-            document.getElementById("info-" + f + "-label").textContent = field_key;
-            document.getElementById("info-" + f).textContent = edge[field_key];
-        }
+        info_html = info_as_table(edge);
         xpos = event.clientX;
         ypos = event.clientY;
         show_edge_action_box(xpos, ypos);
@@ -148,4 +134,15 @@ function show_node_multiselection_box() {
     document.getElementById('floating_node_menu').style.top = "10px";
     document.getElementById('floating_node_menu').style.left = "1000px";
     document.getElementById('floating_node_menu').style.display = "block";
+}
+
+function info_as_table(element) {
+    html_table = "<table>";
+    for (var field in element) {
+        html_table += "<tr><td class=\"label\">" + field +
+                        ":</td><td class=\"data\">" + element[field] + 
+                        "</td></tr>";
+    }
+    html_table += "</table>";
+    document.getElementById("infoTable").innerHTML = html_table;
 }
