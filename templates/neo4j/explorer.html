@@ -1,0 +1,91 @@
+{% extends "graphview/base.html" %}
+
+{% block javascript_imports %}
+<script language="javascript" src="/site_media/raphael-min.js"></script>
+<script language="javascript" src="/site_media/graph-canvas.js"></script>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" charset="utf-8"> 
+        var selected_node;
+        var selected_edge;
+        var terminal;
+        var gdata = eval({{ json_graph|safe }});
+        var node_fields_shown = ["text-type", "text", "degree",
+            "clustering", "original-degree", "original-clustering"];
+        var edge_fields_shown = ["node1", "node2"];
+
+        function execute_query() {
+            query = document.getElementById("query").value;
+            url = "interactor_query/" + query;
+            self.location.href=url;
+        }
+
+    </script> 
+{% endblock %}
+
+{% block raphael %}
+    <script type="text/javascript" charset="utf-8">
+        window.onload = function () {
+            var rafael = new RaphaelGraph(gdata, node_fields_shown, edge_fields_shown);
+            rafael.draw();
+            terminalWidget = document.getElementById('query');
+            terminalWidget.onkeydown = onKeyDown;
+        }
+    </script>
+{% endblock %}
+
+{% block menu %}
+    <div id="menu">
+        <h2>Plexigraph</h2>
+        <h3>Neo4j</h3>
+            <h3>Topics</h3>
+            <div class="topics">
+                {% for key, style in node_style_list %}
+                    <input type="checkbox" onclick="toggle_nodes({{ key }})" 
+                        {% if style.show %}checked{% endif %}>
+                            <span style="color:{{ style.color }}">
+                                {{ style.label }}
+                            </span><br>
+                {% endfor %}
+            </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div id="content">
+        <form action="." method="post">
+            {{ form.as_p }}
+        <input type="submit" value="Visualize"/>
+    </form>
+        <div id="canvas"> </div>
+        <div id="info">
+            {% include "graphview/actions.html" %}
+            <div id="infoTable"></div>
+            <div id="floating_node_menu" onmouseout="this.style.display='none'"
+                               onclick="this.style.display='none'"
+                               onmouseover="this.style.display='block'">
+                <input id="delete_node" type="button" value="Delete node" onclick="delete_node()"/>
+                <br/>
+                <input id="expand_node" type="button" value="Expand node" onclick="expand_node()"/>
+                <br/>
+                <input id="multiselect_node" type="button" value="Multi selection" onclick="multi_select()"/>
+            </div>
+            <div id="floating_edge_menu" onmouseout="this.style.display='none'"
+                               onclick="this.style.display='none'"
+                               onmouseover="this.style.display='block'">
+                <input id="delete_edge" type="button" value="Delete node" onclick="delete_edge()"/>
+                <br/>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block bottombar %}
+<div id="commandbar">
+    <form action="interactor_query/" method="post">
+        <input id="query" name="query" type="text" size="60"/>
+        <input id="btn_query" type="submit" value="Query"/>
+    </form>
+</div>
+{% endblock %}

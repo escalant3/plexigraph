@@ -1,0 +1,35 @@
+{% extends "graphview/base.html" %}
+
+{% block title %}
+    <title>Plexigraph Neo4j Viewer</title>
+{% endblock %}
+
+{% block javascript_imports %}
+    <script type="application/javascript" src="/site_media/jquery-1.3.2.min.js"></script>
+{% endblock %}
+
+{% block header %}
+    <h3>Plexigraph Neo4j Viewer</h3>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+function connect_to_neo4j_server() {
+    url = "explore/" + document.getElementById('host').value;
+    self.location.href=url;
+}
+</script>
+{% endblock %}
+
+{% block menu %}
+<div>
+    <form action="." method="post">
+        {{ form.as_p }}
+        <input type="submit" value="Connect"/>
+    </form>
+</div>
+{% endblock %}
+{% block content %}{% endblock %}
+</div>
+{% block bottombar %}{% endblock %}
+{% block extra %}{% endblock %}
