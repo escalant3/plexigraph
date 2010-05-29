@@ -69,6 +69,7 @@ def selector(request):
                                         'form': form,
                                         'json_graph':json_graph,
                                         'metadata_list': metadata_list,
+                                        'showing_query': True,
                                         'node_style_list': node_style_list})
     else:
         form = Neo4jQueryForm()

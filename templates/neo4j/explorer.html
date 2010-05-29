@@ -54,10 +54,12 @@
 
 {% block content %}
     <div id="content">
-        <form action="." method="post">
-            {{ form.as_p }}
-        <input type="submit" value="Visualize"/>
-    </form>
+        {% if not showing_query %}
+            <form action="." method="post">
+                {{ form.as_p }}
+                <input type="submit" value="Visualize"/>
+            </form>
+        {% endif %}
         <div id="canvas"> </div>
         <div id="info">
             {% include "graphview/actions.html" %}
