@@ -1,9 +1,12 @@
 <h4>Actions</h4>
 <ul class="actions">
-    <li><a class="action" href="relayout">Relayout</a></li>
-    <li><a class="action" href="reset">Reset graph</a></li>
-    <li><a class="action" href="save_state">Save graph state</a></li>
-    <li><a class="action" href="load_state">Load graph state</a></li>
-    <li><a class="action" href="delete_isolated">Delete isolated nodes</a></li>
+    <li><a class="action" href="{% url graphview.views.relayout %}">Relayout</a></li>
+    <li><a class="action" href="{% url graphview.views.reset %}">Reset graph</a></li>
+    <li><a class="action" href="{% url graphview.views.save_state %}">Save graph state</a></li>
+    <li><a class="action" href="{% url graphview.views.load_state %}">Load graph state</a></li>
+    <li><a class="action" href="{% url graphview.views.delete_isolated %}">Delete isolated nodes</a></li>
+    {% if showing_query %}
+        <li><a class="action" href="{% url neo4j.views.new_query %}">New query</a></li>
+    {% endif %}
 </ul>
 
