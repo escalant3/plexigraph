@@ -35,8 +35,9 @@ def selector(request):
                 depth = form.cleaned_data['depth']
                 new_nodes = []
                 graph = Graph()
-                graph.add_node(node.id, **node.properties)
-                new_nodes.append(node.id)
+                node_id = str(node.id)
+                graph.add_node(node_id, **node.properties)
+                new_nodes.append(node_id)
                 for i in range(depth):
                     added_nodes = []
                     for node_id in new_nodes:
@@ -45,12 +46,14 @@ def selector(request):
                             start = relation.start
                             end = relation.end
                             if start not in new_nodes:
-                                graph.add_node(start.id, **start.properties)
-                                added_nodes.append(start.id)
+                                start_id = str(start.id)
+                                graph.add_node(start_id, **start.properties)
+                                added_nodes.append(start_id)
                             if end not in new_nodes:
-                                graph.add_node(end.id, **end.properties)
-                                added_nodes.append(end.id)
-                            graph.add_edge(start.id, end.id, **relation.properties)
+                                end_id = str(end.id)
+                                graph.add_node(end_id, **end.properties)
+                                added_nodes.append(end_id)
+                            graph.add_edge(start_id, end_id, **relation.properties)
                     new_nodes += added_nodes
                 interactor = NetworkxInteractor(graph)
                 request.session['interactor'] = interactor
