@@ -19,6 +19,7 @@ def index(request):
             return HttpResponseRedirect('/viewer/neo4j/selector/')
     else:
         form = Neo4jConnectionForm()
+        request.session.pop('interactor', None)
     return render_to_response('neo4j/index.html', {
         'form': form,
     })
@@ -58,7 +59,6 @@ def selector(request):
                 interactor = NetworkxInteractor(graph)
                 request.session['interactor'] = interactor
                 request.session['layout'] = None
-                request.session['showing_query'] = True,
                 response_dictionary = set_response_dictionary(request)
             else:
                 form = Neo4jConnectionForm()
@@ -85,7 +85,6 @@ def set_response_dictionary(request):
         response_dictionary['node_style_list'] = [(key, value) for key, value
                 in interactor.styles.iteritems()]
         response_dictionary['json_graph'] = simplejson.dumps(new_graph)
-        response_dictionary['showing_query'] = True
     return response_dictionary
 
 
@@ -98,6 +97,5 @@ def interactor_query(request):
 
 
 def new_query(request):
-    request.session.pop('showing_query')
     request.session.pop('interactor')
     return redirect(request.session['viewer'])

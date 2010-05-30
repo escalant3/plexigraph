@@ -176,14 +176,10 @@ def expand_nodes(request, node_list):
     return redirect(request.session['viewer'])
 
 
-def interactor_query(request, query):
-    interactor = request.session.get('interactor')
-    if interactor:
-        try:
+def interactor_query(request):
+    if request.method == 'POST':
+        interactor = request.session.get('interactor')
+        query = request.POST.get('query', None)
+        if query:
             eval(query)
-            request.session['interactor'] = interactor
-            if request.session.has_key('layout'):
-                request.session.pop('layout')
-        except:
-            print "Fix me"
     return redirect(request.session['viewer'])

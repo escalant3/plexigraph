@@ -1,0 +1,20 @@
+<script type="application/javascript">
+function toggle(option) {
+    element = document.getElementById(option + "_menu");
+    display = element.style.display;
+    if (display == "block") {
+        element.style.display = "none";
+    } else {
+        element.style.display = "block";
+        element.style.top = "75px";
+        element.style.left = "200px";
+    }
+}
+</script>
+<div id="menubar" class="bar menubar">
+    <span id="plexigraph_button" class="menuoption" onClick="toggle('plexigraph')">Plexigraph</span>
+    <span id="info_button" class="menuoption" onClick="toggle('dataset_info')">Info</span>
+    <span id="topics_button" class="menuoption" onClick="toggle('topics')">Topics</span>
+    <span id="actions_button" class="menuoption" onClick="toggle('actions')">Actions</span>
+    <span id="actions_button" class="menuoption" onClick="toggle('query')">Query</span>
+</div>

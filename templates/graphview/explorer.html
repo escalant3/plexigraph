@@ -44,12 +44,6 @@
             self.location.href=url;
         }
 
-        function execute_query() {
-            query = document.getElementById("query").value;
-            url = "{% url graphview.views.interactor_query 'JVAR' %}".replace('JVAR', query);
-            self.location.href=url;
-        }
-
         function multi_select() {
             if (!multiselection) {
                 multiselection_table = []
@@ -73,57 +67,33 @@
     </script>
 {% endblock %}
 
-{% block menu %}
-    <div id="menu">
-        <h2>Plexigraph</h2>
-        <h3>Dataset</h3>
-            <table class="dataset">
-                <tr>
-                    <td>Name: </td>
-                    <td>{{ dataset.name }}</td>
-                </tr>
-                <tr>
-                    <td>Description: </td>
-                    <td>{{ dataset.description }}</td>
-                </tr>
-                {% for key, value in metadata_list %}
-                    <tr>
-                        <td>
-                            {{ key }}
-                        </td>
-                        <td>
-                            {{ value }}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-            <h3>Topics</h3>
-            <div class="topics">
+{% block content %}
+    {% include "graphview/menu.html" %}
+    <div id="content">
+        <div id="canvas"> </div>
+        <div id="info">
+            {% block extra_controls %}{% endblock %}
+            <div id="infoTable"></div>
+        </div>
+        <div id="floating_menus">
+            <div id="topics_menu" class="menu">
                 {% for key, style in node_style_list %}
-                    <input type="checkbox" onclick="toggle_nodes({{ key }})" 
+                    <input type="checkbox" onclick="toggle_nodes('{{ key }}')" 
                         {% if style.show %}checked{% endif %}>
                             <span style="color:{{ style.color }}">
                                 {{ style.label }}
                             </span><br>
                 {% endfor %}
             </div>
-    </div>
-{% endblock %}
-
-{% block content %}
-    <div id="content">
-        <div id="canvas"> </div>
-        <div id="info">
             {% include "graphview/actions.html" %}
-            <div id="infoTable"></div>
             <div id="floating_node_menu" onmouseout="this.style.display='none'"
                                onclick="this.style.display='none'"
                                onmouseover="this.style.display='block'">
-                <input id="delete_node" type="button" value="Delete node" onclick="delete_node()"/>
+                <button id="delete_node" onclick="delete_node()">Delete node</button>
                 <br/>
-                <input id="expand_node" type="button" value="Expand node" onclick="expand_node()"/>
+                <button id="expand_node" onclick="expand_node()">Expand node</button>
                 <br/>
-                <input id="multiselect_node" type="button" value="Multi selection" onclick="multi_select()"/>
+                <button id="multiselect_node" onclick="multi_select()">Multi selection</button>
             </div>
             <div id="floating_edge_menu" onmouseout="this.style.display='none'"
                                onclick="this.style.display='none'"
@@ -131,13 +101,38 @@
                 <input id="delete_edge" type="button" value="Delete node" onclick="delete_edge()"/>
                 <br/>
             </div>
+            <div id="dataset_info_menu" class="menu">
+                <table class="dataset">
+                    <tr>
+                        <td>Name: </td>
+                        <td>{{ dataset.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Description: </td>
+                        <td>{{ dataset.description }}</td>
+                    </tr>
+                    {% for key, value in metadata_list %}
+                        <tr>
+                            <td>
+                                {{ key }}
+                            </td>
+                            <td>
+                                {{ value }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
         </div>
     </div>
 {% endblock %}
 
 {% block bottombar %}
-<div id="commandbar">
-    <input id="query" type="text" size="60"/>
-    <input id="btn_query" type="button" value="Query" onclick="execute_query()"/>
+<div id="query_menu" class="menu query_menu">
+    <form action="{% url graphview.views.interactor_query %}"" method="post">
+        <input id="query" name="query" type="text" size="60"/>
+        <input id="btn_query" type="submit" value="Query"/>
+        <input id="cncl_query" type="button" value="Cancel" onClick="toggle('query')"/>
+    </form>
 </div>
 {% endblock %}
