@@ -80,9 +80,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'plexigraph.graphview',
+    'plexigraph.neo4j',
 )
 
-EXPLORER_CANVAS_SIZE = 600
+EXPLORER_CANVAS_SIZE = 700
 MAX_INTERACTIVE_NODES = 50
 MAX_DRAWING_NODES = 500
 
