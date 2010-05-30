@@ -3,6 +3,7 @@
 
 # plxgraph.nx.interaction
 # Diego Muñoz Escalante (escalant3 at gmail dot com)
+from random import randint
 
 import networkx as nx
 
@@ -11,23 +12,33 @@ class NetworkxInteractor():
 
 
     def __init__(self, nx_graph, style_dict = None):
-        self.original_graph = nx_graph
         self.graph = nx_graph
+        self.original_graph = nx_graph
         self.shown_graph = nx_graph
         self.nodes_by_type = {}
+        self.styles = {}
         for node in self.graph.nodes():
             self.graph.node[node]['_visible'] = True
+        if not style_dict:
+            for node_id in self.graph.nodes():
+                node_type = self.graph.node[node_id].get('type', None)
+                if node_type not in self.styles:
+                    color = ('#%x' % randint(0, 16777216)).replace(' ', '0')
+                    self.styles[node_type] = {"color":color,
+                                                "size":"1.0",
+                                                "label":node_type}
         if style_dict:
-            NODE_STYLES = style_dict['node_styles']
-        else:
-            from styles import NODE_STYLES
+            self.styles = style_dict['node_styles']
         try:
-            for i in range(len(NODE_STYLES)):
-                self.nodes_by_type[i] = [key for key in self.graph.node.keys() 
+            for i in (self.styles):
+                self.nodes_by_type[i] = [key for key in self.graph.nodes() 
                                         if self.graph.node[key]['type'] == i]
         except KeyError:
             self.nodes_by_type[0] = self.graph.node.keys()
-
+        for key in self.styles.keys():
+            self.styles[key]['show'] = True
+        self.original_graph = nx_graph
+        self.shown_graph = nx_graph
 
     def reset_graph(self):
         ''' Resets the graph to the starting point '''
@@ -185,14 +196,14 @@ class NetworkxInteractor():
         return metadata
 
 
-    def get_shown_graph(self, style_dictionary):
+    def get_shown_graph(self):
         ''' Creates and returns a copy of the graph with only the nodes
             specified as visible in the style dictionary '''
         self.shown_graph = self.graph.subgraph(self.graph.nodes())
         for node in self.shown_graph.nodes():
             node_type = str(self.shown_graph.node[node].get('type'))
-            if node_type and style_dictionary.get(node_type) \
-                and not style_dictionary[node_type]['show']:
+            if node_type and self.styles.get(node_type) \
+                and not self.styles[node_type]['show']:
                 self.shown_graph.remove_node(node)
         return self.shown_graph
 

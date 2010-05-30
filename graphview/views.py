@@ -20,11 +20,12 @@ def index(request):
 
 
 def explore(request, dataset_id):
+    request.session['viewer'] = request.path_info
     dataset = Dataset.objects.get(pk=dataset_id)
-    styles = dataset.node_styles()
     interactor = request.session.get('interactor')
     interactive_mode = False
     if (not interactor):
+        styles = dataset.node_styles()
         try:
             if dataset.data_type == 'plxgh':
                 graph = importers.dictionary_to_nx(dataset.topics.path,
@@ -36,19 +37,14 @@ def explore(request, dataset_id):
             return redirect('plexigraph.graphview.views.index')
         interactor = NetworkxInteractor(graph, dataset.get_configuration())
         request.session['interactor'] = interactor
-        for key in styles.keys():
-            styles[key]['show'] = True
-        request.session['node_styles'] = styles.copy()
         new_graph = {'nodes': {}, 'edges':{}}
     else:
         new_graph, interactive_mode = set_graph_data(request,
-                                                    interactor,
-                                                    dataset,
-                                                    styles)
+                                                    interactor)
     metadata_list = [(key, value) for key, value 
                         in interactor.get_metadata().iteritems()]
     node_style_list = [(key,value) for key,value 
-                        in request.session['node_styles'].iteritems()]
+                        in interactor.styles.iteritems()]
     json_graph = simplejson.dumps(new_graph)
     if interactive_mode:
         template = 'graphview/interactive_explorer.html'
@@ -61,11 +57,8 @@ def explore(request, dataset_id):
                                 'node_style_list': node_style_list})
 
 
-def set_graph_data(request, interactor, dataset, styles):
-    graph = interactor.get_shown_graph(request.session['node_styles'])
-    if graph.number_of_nodes() > settings.MAX_DRAWING_NODES:
-        print 'Too many nodes to show'
-        return ({'nodes': {}, 'edges': {}}, False)
+def set_graph_data(request, interactor):
+    graph = interactor.get_shown_graph()
     if graph.number_of_nodes() < settings.MAX_INTERACTIVE_NODES:
         interactive_mode = True
     else:
@@ -73,8 +66,9 @@ def set_graph_data(request, interactor, dataset, styles):
     layout = request.session.get('layout')
     if (not layout and not interactive_mode):
         try:
-            layout = nx.drawing.spring_layout(graph, scale=SCALE)
+            layout = nx.drawing.circular_layout(graph, scale=SCALE)
         except:
+            print 'Exception'
             layout = nx.drawing.random_layout(graph)
         request.session['layout'] = layout
     nodes = {}
@@ -83,93 +77,94 @@ def set_graph_data(request, interactor, dataset, styles):
         nodes[node] = graph.node[node].copy()
         nodes[node]['ID'] = node
         if (not interactive_mode):
-            nodes[node]['xpos'] = layout[node][0]
-            nodes[node]['ypos'] = layout[node][1]
+            nodes[node]['xpos'] = float(layout[node][0]) + 50
+            nodes[node]['ypos'] = float(layout[node][1]) + 50
         nodes[node].update(interactor.node_data(node))
         try:
-            nodes[node]['color'] = styles[str(graph.node[node]['type'])]['color']
-            nodes[node]['size'] = styles[str(graph.node[node]['type'])]['size']
+            nodes[node]['color'] = interactor.styles[str(graph.node[node]['type'])]['color']
+            nodes[node]['size'] = interactor.styles[str(graph.node[node]['type'])]['size']
         except KeyError:
             nodes[node]['color'] = "#ffffff"
             nodes[node]['size'] = "1.0"
-    for i in range(len(graph.edges())):
-        edge = graph.edges()[i]
+    i = 0
+    for edge in graph.edges():
         edges[i] = {'ID': i,
                     'node1': edge[0],
                     'node2': edge[1]}
+        i += 1
     return ({'nodes': nodes, 'edges':edges}, interactive_mode)
 
 
-def delete_nodes(request, dataset_id, node_list):
+def delete_nodes(request, node_list):
     node_list = node_list.split(',')
     interactor = request.session.get('interactor')
     if interactor:
         for node_id in node_list:
             interactor.remove_nodes([node_id])
         request.session['interactor'] = interactor
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def delete_edges(request, dataset_id, edge_list):
+def delete_edges(request, edge_list):
     edge_list = zip(*[iter(edge_list.split(','))]*2)
     interactor = request.session.get('interactor')
     if interactor:
         for edge_tuple in edge_list:
             interactor.remove_edges([edge_tuple])
         request.session['interactor'] = interactor
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def toggle_nodes(request, dataset_id, node_type):
-    styles = request.session['node_styles']
+def toggle_nodes(request, node_type):
+    styles = request.session['interactor'].styles
     styles[node_type]['show'] = not styles[node_type]['show']
     request.session['node_styles'] = styles
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def relayout(request, dataset_id):
+def relayout(request):
     interactor = request.session.get('interactor')
     if interactor:
-        layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
+        layout = nx.drawing.circular_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def reset(request, dataset_id):
+def reset(request):
     interactor = request.session.get('interactor')
     if interactor:
         request.session.pop('interactor')
         request.session.pop('layout')
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def save_state(request, dataset_id):
+def save_state(request):
     interactor = request.session.get('interactor')
     if interactor:
         interactor.save_graph()
         request.session['interactor'] = interactor
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def load_state(request, dataset_id):
+def load_state(request):
     interactor = request.session.get('interactor')
     if interactor:
         interactor.reset_graph()
         request.session['interactor'] = interactor
         layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def delete_isolated(request, dataset_id):
+def delete_isolated(request):
     interactor = request.session.get('interactor')
     if interactor:
         interactor.remove_isolated_nodes()
         request.session['interactor'] = interactor
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def expand_nodes(request, dataset_id, node_list):
+def expand_nodes(request, node_list):
     node_list = node_list.split(',')
     interactor = request.session.get('interactor')
     if interactor:
@@ -178,21 +173,12 @@ def expand_nodes(request, dataset_id, node_list):
         request.session['interactor'] = interactor
         layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
         request.session['layout'] = layout
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
 
 
-def interactor_query(request, dataset_id, query):
+def interactor_query(request, query):
     interactor = request.session.get('interactor')
     if interactor:
-        """
-        for method in dir(interactor):
-            if method == query_data[0]:
-                break
-        else:
-            pass
-        parameters = query_data[1:]
-        getattr(interactor, method)(parameters)
-        """
         try:
             eval(query)
             request.session['interactor'] = interactor
@@ -200,4 +186,4 @@ def interactor_query(request, dataset_id, query):
                 request.session.pop('layout')
         except:
             print "Fix me"
-    return redirect('plexigraph.graphview.views.explore', dataset_id=dataset_id)
+    return redirect(request.session['viewer'])
