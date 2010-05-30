@@ -11,44 +11,42 @@
         var selected_edge;
         var terminal;
         var gdata = eval({{ json_graph|safe }});
-        var node_fields_shown = ["text-type", "text", "degree",
-            "clustering", "original-degree", "original-clustering"];
-        var edge_fields_shown = ["node1", "node2"];
 
         function delete_node() {
             if (multiselection) {
                 multiselection = false;
-                url = "delete_nodes/" + multiselection_table;
+                url = "{% url graphview.views.delete_nodes 'JVAR' %}".replace('JVAR', multiselection_table);
             } else {
-                url = "delete_nodes/" + selected_node;
+                url = "{% url graphview.views.delete_nodes 'JVAR' %}".replace('JVAR', selected_node);
             }
             self.location.href=url;
         }
 
         function delete_edge() {
             edge = gdata.edges[selected_edge];
-            url = "delete_edges/" + edge['node1'] + "," + edge['node2'];
+            edge_data = edge['node1'] + "," + edge['node2'];
+            url = "{% url graphview.views.delete_edges 'JVAR' %}".replace('JVAR', edge_data);
             self.location.href=url;
         }
 
         function expand_node() {
             if (multiselection) {
                 multiselection = false;
-                url = "expand_nodes/" + multiselection_table;
+                url = "{% url graphview.views.expand_nodes 'JVAR' %}".replace('JVAR', multiselection_table);
             } else {
-                url = "expand_nodes/" + selected_node;
+                url = "{% url graphview.views.expand_nodes 'JVAR' %}".replace('JVAR', selected_node);
             }
             self.location.href=url;
         }
 
         function toggle_nodes(node_types) {
-            url = "toggle_nodes/" + node_types;
+            url = "{% url graphview.views.toggle_nodes '123' %}".replace('123', node_types);
             self.location.href=url;
         }
 
         function execute_query() {
             query = document.getElementById("query").value;
-            url = "interactor_query/" + query;
+            url = "{% url graphview.views.interactor_query 'JVAR' %}".replace('JVAR', query);
             self.location.href=url;
         }
 
@@ -67,7 +65,7 @@
 {% block raphael %}
     <script type="text/javascript" charset="utf-8">
         window.onload = function () {
-            var rafael = new RaphaelGraph(gdata, node_fields_shown, edge_fields_shown);
+            var rafael = new RaphaelGraph(gdata);
             rafael.draw();
             terminalWidget = document.getElementById('query');
             terminalWidget.onkeydown = onKeyDown;
@@ -117,7 +115,7 @@
         <div id="canvas"> </div>
         <div id="info">
             {% include "graphview/actions.html" %}
-            {% include "graphview/infoTable.html" %}
+            <div id="infoTable"></div>
             <div id="floating_node_menu" onmouseout="this.style.display='none'"
                                onclick="this.style.display='none'"
                                onmouseover="this.style.display='block'">

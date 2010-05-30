@@ -8,10 +8,8 @@ var show_labels = true;
 var multiselection = false;
 var multiselection_table = []
 
-function RaphaelGraph(_data, _node_fields_shown, _edge_fields_shown) {
+function RaphaelGraph(_data) {
     this.paper = Raphael("canvas", 800, 800);
-    this.node_fields_shown = _node_fields_shown;
-    this.edge_fields_shown = _edge_fields_shown;
     this.width = this.paper.width;
     this.height = this.paper.height;
     this.data = _data;
@@ -25,13 +23,13 @@ function draw() {
     var r = this.paper.rect(0, 0, this.width, this.height, 10);
     for (var node in this.data.nodes) {
         if (this.data.nodes[node]['_visible'] == true) {
-            this.draw_node(this.data.nodes[node], this.node_fields_shown);
+            this.draw_node(this.data.nodes[node]);
         }
     };
     for (var e in this.data.edges) {
         edge = this.data.edges[e]
         if (this.data.nodes[edge.node1]['_visible'] && this.data.nodes[edge.node2]['_visible']) {
-            this.draw_edge(edge, this.edge_fields_shown);
+            this.draw_edge(edge);
         }
     };
 }
