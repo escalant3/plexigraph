@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response, HttpResponseRedirect
+from django.shortcuts import render_to_response, HttpResponseRedirect, redirect
 from django.utils import simplejson
 
 from neo4jclient import GraphDatabase
@@ -7,6 +7,7 @@ from networkx import Graph
 from forms import Neo4jConnectionForm, Neo4jQueryForm
 from graphview.views import set_graph_data
 from plxgraph.nx.interaction import NetworkxInteractor
+
 
 def index(request):
     if request.method == 'POST':
@@ -22,7 +23,9 @@ def index(request):
         'form': form,
     })
 
+
 def selector(request):
+    request.session['viewer'] = request.path_info
     if request.method == 'POST':
         form = Neo4jQueryForm(request.POST)
         if form.is_valid():
@@ -49,33 +52,39 @@ def selector(request):
                                 added_nodes.append(end.id)
                             graph.add_edge(start.id, end.id, **relation.properties)
                     new_nodes += added_nodes
-                #for i in range(depth):
                 interactor = NetworkxInteractor(graph)
                 request.session['interactor'] = interactor
                 request.session['layout'] = None
-
-                new_graph = set_graph_data(request, interactor, {})[0]
-                metadata_list = [(key, value) for key, value 
-                        in interactor.get_metadata().iteritems()]
-                node_style_list = [(key,value) for key,value 
-                        in interactor.styles.iteritems()]
-                json_graph = simplejson.dumps(new_graph)
-                form = Neo4jQueryForm()
+                request.session['showing_query'] = True,
+                response_dictionary = set_response_dictionary(request)
             else:
                 form = Neo4jConnectionForm()
                 return render_to_response('neo4j/index.html', {
-                                            'form': form})
-            return render_to_response('neo4j/explorer.html',{
-                                        'form': form,
-                                        'json_graph':json_graph,
-                                        'metadata_list': metadata_list,
-                                        'showing_query': True,
-                                        'node_style_list': node_style_list})
+                                            'form': form,
+                                            })
+            return render_to_response('neo4j/explorer.html',
+                                        response_dictionary)
     else:
-        form = Neo4jQueryForm()
-    return render_to_response('neo4j/explorer.html', {
-        'form': form,
-    })
+        interactor = request.session.get('interactor')
+        return render_to_response('neo4j/explorer.html',
+                                set_response_dictionary(request))
+
+
+def set_response_dictionary(request):
+    response_dictionary = {}
+    response_dictionary['form'] = Neo4jQueryForm()
+    interactor = request.session.get('interactor')
+    if interactor:
+        new_graph = set_graph_data(request, interactor)[0]
+        response_dictionary['new_graph'] = new_graph
+        response_dictionary['metadata_list'] = [(key, value) for key, value
+                in interactor.get_metadata().iteritems()]
+        response_dictionary['node_style_list'] = [(key, value) for key, value
+                in interactor.styles.iteritems()]
+        response_dictionary['json_graph'] = simplejson.dumps(new_graph)
+        response_dictionary['showing_query'] = True
+    return response_dictionary
+
 
 def interactor_query(request):
     if request.method == 'POST':
@@ -83,3 +92,9 @@ def interactor_query(request):
         if query:
             eval(query)
     return render_to_response('graphview/explorer.html', {})
+
+
+def new_query(request):
+    request.session.pop('showing_query')
+    request.session.pop('interactor')
+    return redirect(request.session['viewer'])
