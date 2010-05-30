@@ -1,39 +1,4 @@
-{% extends "graphview/base.html" %}
-
-{% block javascript_imports %}
-<script language="javascript" src="/site_media/raphael-min.js"></script>
-<script language="javascript" src="/site_media/graph-canvas.js"></script>
-{% endblock %}
-
-{% block javascript %}
-    <script type="text/javascript" charset="utf-8"> 
-        var selected_node;
-        var selected_edge;
-        var terminal;
-        var gdata = eval({{ json_graph|safe }});
-        var node_fields_shown = ["text-type", "text", "degree",
-            "clustering", "original-degree", "original-clustering"];
-        var edge_fields_shown = ["node1", "node2"];
-
-        function execute_query() {
-            query = document.getElementById("query").value;
-            url = "interactor_query/" + query;
-            self.location.href=url;
-        }
-
-    </script> 
-{% endblock %}
-
-{% block raphael %}
-    <script type="text/javascript" charset="utf-8">
-        window.onload = function () {
-            var rafael = new RaphaelGraph(gdata, node_fields_shown, edge_fields_shown);
-            rafael.draw();
-            terminalWidget = document.getElementById('query');
-            terminalWidget.onkeydown = onKeyDown;
-        }
-    </script>
-{% endblock %}
+{% extends "graphview/explorer.html" %}
 
 {% block menu %}
     <div id="menu">
