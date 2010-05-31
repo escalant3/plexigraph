@@ -12,6 +12,10 @@ from plexigraph.graphview.models import Dataset
 SCALE = settings.EXPLORER_CANVAS_SIZE
 
 
+def main(request):
+    return render_to_response('graphview/main.html')
+
+
 def index(request):
     datasets = Dataset.objects.all()
     request.session.pop('interactor', None)

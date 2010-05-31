@@ -37,4 +37,5 @@ urlpatterns = patterns('',
     (r'^viewer/neo4j/', include('neo4j.urls')),
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': site_media}),
+    (r'^$', 'graphview.views.main'),
 )

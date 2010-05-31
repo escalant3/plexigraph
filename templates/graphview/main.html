@@ -1,0 +1,12 @@
+{% extends "graphview/base.html" %}
+
+{% block content %}
+<h1>Plexigraph</h1>
+<h4>Connect to:</h4>
+<a href="{% url neo4j.views.index %}">
+    <img class="connection_menu"
+            src="/site_media/images/neo4j_logo.png"
+            alt="Neo4j REST Server"/></a>
+<br/>
+<a href="{% url graphview.views.index %}"><h3>Custom graphs</h3></a>
+{% endblock %}
