@@ -186,4 +186,5 @@ def interactor_query(request):
         query = request.POST.get('query', None)
         if query:
             eval(query)
+            request.session['interactor'] = interactor
     return redirect(request.session['viewer'])

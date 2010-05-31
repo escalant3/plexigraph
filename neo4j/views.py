@@ -16,7 +16,7 @@ def index(request):
             host = form.cleaned_data['host']
             gdb = GraphDatabase(host)
             request.session['gdb'] = gdb
-            return HttpResponseRedirect('/viewer/neo4j/selector/')
+            return HttpResponseRedirect('neo4j/selector/')
     else:
         form = Neo4jConnectionForm()
         request.session.pop('interactor', None)
@@ -86,14 +86,6 @@ def set_response_dictionary(request):
                 in interactor.styles.iteritems()]
         response_dictionary['json_graph'] = simplejson.dumps(new_graph)
     return response_dictionary
-
-
-def interactor_query(request):
-    if request.method == 'POST':
-        query = request.POST.get('query', None)
-        if query:
-            eval(query)
-    return render_to_response('graphview/explorer.html', {})
 
 
 def new_query(request):

@@ -10,8 +10,7 @@ import networkx as nx
 
 class NetworkxInteractor():
 
-
-    def __init__(self, nx_graph, style_dict = None):
+    def __init__(self, nx_graph, style_dict=None):
         self.graph = nx_graph
         self.original_graph = nx_graph
         self.shown_graph = nx_graph
@@ -24,14 +23,14 @@ class NetworkxInteractor():
                 node_type = self.graph.node[node_id].get('type', None)
                 if node_type not in self.styles:
                     color = ('#%x' % randint(0, 16777216)).replace(' ', '0')
-                    self.styles[node_type] = {"color":color,
-                                                "size":"1.0",
-                                                "label":node_type}
+                    self.styles[node_type] = {"color": color,
+                                                "size": "1.0",
+                                                "label": node_type}
         if style_dict:
             self.styles = style_dict['node_styles']
         try:
             for i in (self.styles):
-                self.nodes_by_type[i] = [key for key in self.graph.nodes() 
+                self.nodes_by_type[i] = [key for key in self.graph.nodes()
                                         if self.graph.node[key]['type'] == i]
         except KeyError:
             self.nodes_by_type[0] = self.graph.node.keys()
@@ -44,11 +43,9 @@ class NetworkxInteractor():
         ''' Resets the graph to the starting point '''
         self.graph = self.original_graph.subgraph(self.original_graph.nodes())
 
-
     def save_graph(self):
         ''' Saves a snapshop of the graph state '''
         self.original_graph = self.graph.subgraph(self.graph.nodes())
-
 
     def hide_nodes(self, nodes):
         ''' Removes a list of nodes '''
@@ -56,7 +53,6 @@ class NetworkxInteractor():
         for node in nodes:
             node_list.remove(node)
         self.graph = self.graph.subgraph(node_list)
-
 
     def remove_nodes(self, nodes):
         ''' Removes a list of nodes and all it edges '''
@@ -66,19 +62,16 @@ class NetworkxInteractor():
                 self.graph.remove_edge(node, n)
             self.graph.remove_node(node)
 
-
     def remove_edges(self, edges):
         ''' Removes a list of edges'''
         for edge in edges:
             self.graph.remove_edge(edge[0], edge[1])
-
 
     def remove_isolated_nodes(self):
         ''' Removes nodes without connection '''
         for node in self.graph.nodes():
             if self.graph.degree(node) == 0:
                 self.graph.remove_node(node)
-
 
     def get_nodes_neighborhood(self, nodes, depth=1):
         ''' Returns the neighborhood of a list of nodes with a given depth '''
@@ -94,65 +87,36 @@ class NetworkxInteractor():
                     nodes_to_show.add(en)
         return nodes_to_show
 
-
     def show_nodes_neighborhood(self, nodes, depth=1):
         ''' Shows the neighborhood of a list of nodes with a given depth '''
         self.reset_graph()
         nodes_to_show = self.get_nodes_neighborhood(nodes, depth)
         self.graph = self.graph.subgraph(nodes_to_show)
 
-
-    def show_nodes_by_text(self, text, depth=1):
-        ''' Shows nodes with the "text" label matching the given text '''
-        nodes_to_show = self.nodes_by_field(self.original_graph, 'text', text)
-        self.show_nodes_neighborhood(nodes_to_show, depth)
-
-
     def show_nodes_by_field(self, field, value, depth=1):
         ''' Shows nodes with the field matching the given value '''
         nodes_to_show = self.nodes_by_field(self.original_graph, field, value)
         self.show_nodes_neighborhood(nodes_to_show, depth)
 
-
-    def filter_nodes_by_text(self, text, depth=1):
-        ''' Filters nodes with the "text" label matching the given text '''
-        nodes_to_show = self.nodes_by_field(self.graph, 'text', text)
+    def filter_nodes_by_field(self, field, value, depth=1):
+        ''' Filters nodes with the field matching the given value '''
+        nodes_to_show = self.nodes_by_field(self.graph, field, value)
         self.show_nodes_neighborhood(nodes_to_show, depth)
-
+        self.graph = self.graph.subgraph(nodes_to_show)
 
     def nodes_by_field(self, graph, field, value):
         ''' Shows nodes with the field label matching the given value '''
         return [node for node in graph.node
                         if graph.node[node].get(field) == value]
 
-
-    def show_nodes_by_text_type(self, node_type, depth=1):
-        ''' Shows nodes with the "text-type" label matching the given node_type '''
-        nodes_to_show = self.nodes_by_field(self.graph, 'text-type', node_type)
-        self.show_nodes_neighborhood(nodes_to_show, depth)
-
-
-    def show_nodes_by_type(self, node_type, depth=1):
-        ''' Shows nodes with the "type" label matching the given node_type '''
-        nodes_to_show = self.nodes_by_field(self.graph, 'text-type', node_type)
-        self.show_nodes_neighborhood(nodes_to_show, depth)
-
-
-    def filter_nodes_by_type(self, node_type, depth=1):
-        ''' Filterss nodes with the "type" label matching the given node_type '''
-        nodes_to_show = self.nodes_by_field(self.graph, 'text-type', node_type)
-        self.show_nodes_neighborhood(nodes_to_show, depth)
-
-
     def subgraph_by_field(self, field, value):
-        ''' Returns a subgraph of nodes matching the given field 
+        ''' Returns a subgraph of nodes matching the given field
         with the given value '''
         nodes = self.nodes_by_field(field, value)
         return self.graph.subgraph(nodes)
 
-
     def hide_labels(self, node_type=[]):
-        ''' Hide all node labels. If node_type is specified it only 
+        ''' Hide all node labels. If node_type is specified it only
         hides nodes with that text-type'''
         self.graph = self.graph.subgraph(self.graph.nodes())
         if not node_type:
@@ -163,20 +127,6 @@ class NetworkxInteractor():
                 if self.graph.node[key]['text-type'] in node_type:
                     self.graph.node[key]['text'] = ''
 
-
-    def show_labels(self, node_type=[]):
-        ''' Show all node labels. If node_type is specified it only 
-        shows nodes with that text-type'''
-        self.graph = self.graph.subgraph(self.graph.nodes())
-        if not node_type:
-            for key in self.graph.node:
-                self.graph.node[key]['text'] = self.original_graph.node[key]['text']
-        else:
-            for key in self.graph.node:
-                if self.graph.node[key]['text-type'] in node_type:
-                    self.graph.node[key]['text'] = self.original_graph.node[key]['text']
-
-
     def expand_node(self, node):
         ''' Expand a given node of the graph '''
         nbunch = self.get_nodes_neighborhood(node)
@@ -184,7 +134,6 @@ class NetworkxInteractor():
         self.graph = nx.compose(self.graph, subgraph)
         for node in self.graph.nodes():
             self.graph.node[node] = self.original_graph.node[node].copy()
-
 
     def get_metadata(self):
         ''' Returns information about the graph '''
@@ -194,7 +143,6 @@ class NetworkxInteractor():
         metadata['edges'] = self.original_graph.number_of_edges()
         metadata['edges_shown'] = self.shown_graph.number_of_edges()
         return metadata
-
 
     def get_shown_graph(self):
         ''' Creates and returns a copy of the graph with only the nodes
