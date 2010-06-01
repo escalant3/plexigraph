@@ -90,12 +90,10 @@ def set_graph_data(request, interactor):
         except KeyError:
             nodes[node]['color'] = "#ffffff"
             nodes[node]['size'] = "1.0"
-    i = 0
-    for edge in graph.edges():
+    for i, edge in enumerate(graph.edges()):
         edges[i] = {'ID': i,
                     'node1': edge[0],
                     'node2': edge[1]}
-        i += 1
     return ({'nodes': nodes, 'edges':edges}, interactive_mode)
 
 
