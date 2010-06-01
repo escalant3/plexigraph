@@ -18,6 +18,9 @@ class NetworkxInteractor():
         self.styles = {}
         for node in self.graph.nodes():
             self.graph.node[node]['_visible'] = True
+        for edge in self.graph.edges():
+            if 'weight' not in self.graph.edge[edge[0]][edge[1]]:
+                self.graph.edge[edge[0]][edge[1]]['weight'] = 1.0
         if not style_dict:
             for node_id in self.graph.nodes():
                 node_type = self.graph.node[node_id].get('type', None)
