@@ -171,10 +171,15 @@ def expand_nodes(request, node_list):
     node_list = node_list.split(',')
     interactor = request.session.get('interactor')
     if interactor:
+        previous_nodes = interactor.graph.nodes()[:]
         for node_id in node_list:
             interactor.expand_node([node_id])
         request.session['interactor'] = interactor
-        layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
+        previous_layout = request.session.get('layout', None)
+        layout = nx.drawing.spring_layout(interactor.graph,
+                                            scale=SCALE,
+                                            pos=previous_layout,
+                                            fixed=previous_nodes)
         request.session['layout'] = layout
     return redirect(request.session['viewer'])
 
