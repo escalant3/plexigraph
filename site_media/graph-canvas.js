@@ -4,7 +4,8 @@ var HALF_NODE = NODE_SIZE / 2;
 var NODE_ANIMATION_TIME = 250;
 var XMARGIN = 5;
 var YMARGIN = 5;
-var show_labels = true;
+var show_labels = false;
+var node_label_field = "";
 var multiselection = false;
 var multiselection_table = []
 
@@ -20,6 +21,7 @@ function RaphaelGraph(_data) {
 }
 
 function draw() {
+    this.paper.clear();
     var r = this.paper.rect(0, 0, this.width, this.height, 10);
     for (var node in this.data.nodes) {
         if (this.data.nodes[node]['_visible'] == true) {
@@ -60,7 +62,9 @@ function draw_node(node, fields) {
         c.animate({"scale": "1 1"}, NODE_ANIMATION_TIME);
     };
     if (show_labels == true) {
-        var t = this.paper.text(node.xpos-NODE_SIZE, node.ypos-NODE_SIZE, node["text"]);
+        var t = this.paper.text(node.xpos-NODE_SIZE,
+                                node.ypos-NODE_SIZE,
+                                node[node_label_field]);
     }
 };
 
@@ -143,4 +147,10 @@ function info_as_table(element) {
     }
     html_table += "</table>";
     document.getElementById("infoTable").innerHTML = html_table;
+}
+
+function toggle_labels(label_field) {
+    node_label_field = label_field;
+    show_labels = !show_labels;
+    raphael_object.draw()
 }
