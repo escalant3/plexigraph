@@ -170,3 +170,33 @@ class NetworkxInteractor():
                 'clustering': clustering,
                 'original-degree': self.original_graph.degree(node),
                 'original-clustering': original_clustering}
+
+    def is_valid_link(self, node1_id, node2_id, valid_links):
+        if not valid_links:
+            return True
+        nt1 = self.graph.node[node1_id].get('type')
+        nt2 = self.graph.node[node2_id].get('type')
+        for valid_link in valid_links:
+            if nt1 in valid_link and nt2 in valid_link:
+                return True
+        return False
+
+    def collapse_by_type(self, node_type, valid_links=None, edge_data={}):
+        ''' Colapses nodes with type node_type and replaces them with
+        edges if it is they are a the center member of a triplet.
+        If valid_links is especified as a list of valid pairs of
+        node types, links are only created for nodes with the types
+        specified by the parameter '''
+        for node_id in self.graph.nodes():
+            nt = self.graph.node[node_id].get('type', None)
+            if nt == node_type:
+                for i, edge_id in enumerate(self.graph.edge[node_id]):
+                    for edge2_id in self.graph.edge[node_id].keys()[i + 1:]:
+                        if self.is_valid_link(edge_id, edge2_id, valid_links):
+                            if self.graph.has_edge(edge_id, edge2_id):
+                                pass
+                            else:
+                                self.graph.add_edge(edge_id, edge2_id,
+                                                    {'weight': 1})
+                            self.graph.edge[edge_id][edge2_id].update(edge_data)
+                self.graph.remove_node(node_id)
