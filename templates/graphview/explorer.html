@@ -94,6 +94,19 @@
                 <input type="text" id="label_field_id"/>
                 <input type="checkbox" onClick="refresh_labels()"/>
             </div>
+            <div id="layouts_menu" class="menu">
+                <form action="{% url graphview.views.relayout %}"" method="post">
+                    <select name="layout_type">
+                        <option value="spring">Spring layout</option>
+                        <option value="circular">Circular layout</option>
+                        <option value="spectral">Spectral layout</option>
+                        <option value="shell">Shell layout</option>
+                        <option value="random">Random layout</option>
+                    </select>
+                    <input id="btn_layout" type="submit" value="Relayout"/>
+                </form>
+                
+            </div>
             {% include "graphview/actions.html" %}
             <div id="floating_node_menu" onmouseout="this.style.display='none'"
                                onclick="this.style.display='none'"

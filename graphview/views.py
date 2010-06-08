@@ -126,10 +126,21 @@ def toggle_nodes(request, node_type):
 
 
 def relayout(request):
-    interactor = request.session.get('interactor')
-    if interactor:
-        layout = nx.drawing.circular_layout(interactor.graph, scale=SCALE)
-        request.session['layout'] = layout
+    if request.method == 'POST':
+        interactor = request.session.get('interactor')
+        if interactor:
+            layout_type = request.POST['layout_type']
+            if layout_type == 'spring':
+                layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
+            elif layout_type == 'random':
+                layout = nx.drawing.random_layout(interactor.graph)
+            elif layout_type == 'circular':
+                layout = nx.drawing.circular_layout(interactor.graph, scale=SCALE)
+            elif layout_type == 'spectral':
+                layout = nx.drawing.spectral_layout(interactor.graph, scale=SCALE)
+            elif layout_type == 'shell':
+                layout = nx.drawing.shell_layout(interactor.graph, scale=SCALE)
+            request.session['layout'] = layout
     return redirect(request.session['viewer'])
 
 
