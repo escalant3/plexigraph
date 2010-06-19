@@ -11,6 +11,7 @@
         var selected_edge;
         var terminal;
         var gdata = eval({{ json_graph|safe }});
+        var raphael;
 
         function delete_node() {
             if (multiselection) {
@@ -64,8 +65,8 @@
 {% block raphael %}
     <script type="text/javascript" charset="utf-8">
         window.onload = function () {
-            var rafael = new RaphaelGraph(gdata);
-            rafael.draw();
+            raphael = new RaphaelGraph(gdata);
+            raphael.draw("circular");
             terminalWidget = document.getElementById('query');
             terminalWidget.onkeydown = onKeyDown;
         }
@@ -95,17 +96,14 @@
                 <input type="checkbox" onClick="refresh_labels()"/>
             </div>
             <div id="layouts_menu" class="menu">
-                <form action="{% url graphview.views.relayout %}"" method="post">
-                    <select name="layout_type">
+                    <select id="layout_type">
                         <option value="spring">Spring layout</option>
                         <option value="circular">Circular layout</option>
                         <option value="spectral">Spectral layout</option>
                         <option value="shell">Shell layout</option>
                         <option value="random">Random layout</option>
                     </select>
-                    <input id="btn_layout" type="submit" value="Relayout"/>
-                </form>
-                
+                    <input type="button" value="Relayout" onclick="raphael.draw(getElementById('layout_type').value);"/>
             </div>
             {% include "graphview/actions.html" %}
             <div id="floating_node_menu" onmouseout="this.style.display='none'"

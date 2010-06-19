@@ -15,12 +15,123 @@ function RaphaelGraph(_data) {
     this.height = this.paper.height;
     this.data = _data;
     this.draw = draw;
+    this.render = render;
     this.draw_node = draw_node;
     this.draw_edge = draw_edge;
+    this.len = len;
+    this.spring_layout = spring_layout;
+    this.random_layout = random_layout;
+    this.circular_layout = circular_layout;
     raphael_object = this;
 }
 
-function draw() {
+function rand (n) {
+    return (Math.floor(Math.random( ) * n + 1 ));
+}
+
+function len(object) {
+    counter = 0;
+    for (i in object) counter++;
+    return counter;
+}
+
+function coulombRepulsion(k, node1, node2) {
+    var dx = node2.xpos - node1.xpos;
+    var dy = node2.ypos - node1.ypos;
+    var d2 = dx * dx + dy * dy;
+    var d = Math.sqrt(d2);
+    if(d > 0) {
+            var repulsiveForce = k * k / d;
+            node2.xspeed += repulsiveForce * dx / d;
+            node2.yspeed += repulsiveForce * dy / d;
+            node1.xspeed -= repulsiveForce * dx / d;
+            node1.yspeed -= repulsiveForce * dy / d;
+    }
+}
+
+function hookeAttraction(k, nodes, edge) {
+    var node1 = nodes[edge["node1"]];
+    var node2 = nodes[edge["node2"]];
+    var dx = node2.xpos - node1.xpos;
+    var dy = node2.ypos - node1.ypos;
+    var d2 = dx * dx + dy * dy;
+    var attractiveForce = d2 / k;
+    var d = Math.sqrt(d2);
+    if (d>0) {
+        node2.xspeed -= attractiveForce * dx / d;
+        node2.yspeed -= attractiveForce * dy / d;
+        node1.xspeed += attractiveForce * dx / d;
+        node1.yspeed += attractiveForce * dy / d;
+    }
+}
+
+function random_layout() {
+    for (var node in this.data.nodes) {
+        this.data.nodes[node].xpos = rand(this.width);
+        this.data.nodes[node].ypos = rand(this.height);
+    }
+}
+
+function spring_layout() {
+    for (var node in this.data.nodes) {
+        this.data.nodes[node].xpos = rand(this.width);
+        this.data.nodes[node].ypos = rand(this.height);
+        this.data.nodes[node].xspeed = 0;
+        this.data.nodes[node].yspeed = 0;
+    }
+    N = this.len(this.data.nodes);
+    k = Math.sqrt(this.height*this.width/N);
+    for (var iteration=0;iteration<25;iteration=iteration+1) {
+        for (var i in this.data.nodes) {
+            for (var j in this.data.nodes) {
+                coulombRepulsion(k, this.data.nodes[i], this.data.nodes[j]);
+            }
+        }
+        for (var i in this.data.edges) {
+            hookeAttraction(k, this.data.nodes, this.data.edges[i]);
+        }
+        for (var i in this.data.nodes) {
+            node = this.data.nodes[i];
+            var xmove = 0.0001 * node.xspeed;
+            var ymove = 0.0001 * node.yspeed;
+            node.xpos += xmove;
+            node.ypos += ymove;
+            if (node.xpos > this.width) node.xpos=this.width;
+            if (node.xpos < 0) node.xpos=0;
+            if (node.ypos > this.height) node.ypos=this.height;
+            if (node.ypos < 0) node.ypos=0;
+        }
+    }
+}
+
+function circular_layout() {
+    N = this.len(this.data.nodes);
+    step = 2.0*Math.PI/N;
+    points = Array();
+    for(i=0;i<2*Math.PI;i=i+step) {
+        points.push(i);
+    }
+    scale_x = this.width/2;
+    offset_x = this.width/2;
+    scale_y = this.height/2;
+    offset_y = this.height/2;
+    for(var i in this.data.nodes) {
+        point = points.pop()
+        this.data.nodes[i].xpos = Math.cos(point) * scale_x + offset_x;
+        this.data.nodes[i].ypos = Math.sin(point) * scale_y + offset_y;
+    }
+}
+
+function draw(layout) {
+    switch (layout) {
+        case "random": this.random_layout();break;
+        case "spring": this.spring_layout();break;
+        case "circular": this.circular_layout();break;
+    }
+    this.render();
+}
+
+function render() {
     this.paper.clear();
     var r = this.paper.rect(0, 0, this.width, this.height, 10);
     for (var node in this.data.nodes) {
@@ -37,6 +148,8 @@ function draw() {
 }
 
 function draw_node(node, fields) {
+
+
     if (node["size"])
         node_size = NODE_SIZE * parseFloat(node["size"]);
     else
@@ -61,6 +174,24 @@ function draw_node(node, fields) {
     c.node.onmouseout = function () {
         c.animate({"scale": "1 1"}, NODE_ANIMATION_TIME);
     };
+    /*
+    function move(dx, dy) {
+        this.update(dx - (this.dx || 0), dy - (this.dy || 0));
+        this.dx = dx;
+        this.dy = dy;
+    }
+
+    function up() {
+        this.dx = this.dy = 0;
+    }
+
+    c.update = function (dx, dy) {
+        x = this.attr("cx") + dx;
+        y = this.attr("cy") + dy;
+        this.attr({cx: x, cy: y});
+        console.log(this.paper.data.nodes[node.ID]);
+    }
+    c.drag(move, up); */
     if (show_labels == true) {
         var t = this.paper.text(node.xpos-NODE_SIZE,
                                 node.ypos-NODE_SIZE,

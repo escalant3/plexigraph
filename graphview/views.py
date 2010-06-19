@@ -19,7 +19,6 @@ def main(request):
 def index(request):
     datasets = Dataset.objects.all()
     request.session.pop('interactor', None)
-    request.session.pop('layout', None)
     return render_to_response('graphview/index.html', {'datasets':datasets})
 
 
@@ -67,22 +66,11 @@ def set_graph_data(request, interactor):
         interactive_mode = True
     else:
         interactive_mode = False
-    layout = request.session.get('layout')
-    if (not layout and not interactive_mode):
-        try:
-            layout = nx.drawing.circular_layout(graph, scale=SCALE)
-        except:
-            print 'Exception'
-            layout = nx.drawing.random_layout(graph)
-        request.session['layout'] = layout
     nodes = {}
     edges = {}
     for node in graph.nodes():
         nodes[node] = graph.node[node].copy()
         nodes[node]['ID'] = node
-        if (not interactive_mode):
-            nodes[node]['xpos'] = float(layout[node][0]) + 50
-            nodes[node]['ypos'] = float(layout[node][1]) + 50
         nodes[node].update(interactor.node_data(node))
         try:
             nodes[node]['color'] = interactor.styles[str(graph.node[node]['type'])]['color']
@@ -125,30 +113,10 @@ def toggle_nodes(request, node_type):
     return redirect(request.session['viewer'])
 
 
-def relayout(request):
-    if request.method == 'POST':
-        interactor = request.session.get('interactor')
-        if interactor:
-            layout_type = request.POST['layout_type']
-            if layout_type == 'spring':
-                layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
-            elif layout_type == 'random':
-                layout = nx.drawing.random_layout(interactor.graph)
-            elif layout_type == 'circular':
-                layout = nx.drawing.circular_layout(interactor.graph, scale=SCALE)
-            elif layout_type == 'spectral':
-                layout = nx.drawing.spectral_layout(interactor.graph, scale=SCALE)
-            elif layout_type == 'shell':
-                layout = nx.drawing.shell_layout(interactor.graph, scale=SCALE)
-            request.session['layout'] = layout
-    return redirect(request.session['viewer'])
-
-
 def reset(request):
     interactor = request.session.get('interactor')
     if interactor:
         request.session.pop('interactor')
-        request.session.pop('layout')
     return redirect(request.session['viewer'])
 
 
@@ -165,8 +133,6 @@ def load_state(request):
     if interactor:
         interactor.reset_graph()
         request.session['interactor'] = interactor
-        layout = nx.drawing.spring_layout(interactor.graph, scale=SCALE)
-        request.session['layout'] = layout
     return redirect(request.session['viewer'])
 
 
@@ -186,12 +152,6 @@ def expand_nodes(request, node_list):
         for node_id in node_list:
             interactor.expand_node([node_id])
         request.session['interactor'] = interactor
-        previous_layout = request.session.get('layout', None)
-        layout = nx.drawing.spring_layout(interactor.graph,
-                                            scale=SCALE,
-                                            pos=previous_layout,
-                                            fixed=previous_nodes)
-        request.session['layout'] = layout
     return redirect(request.session['viewer'])
 
 
