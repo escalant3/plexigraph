@@ -285,9 +285,11 @@ function show_node_multiselection_box() {
 function info_as_table(element) {
     html_table = "<table>";
     for (var field in element) {
-        html_table += "<tr><td class=\"label\">" + field +
+        if (field.length && field[0]!="_") {
+            html_table += "<tr><td class=\"label\">" + field +
                         ":</td><td class=\"data\">" + element[field] + 
                         "</td></tr>";
+            }
     }
     html_table += "</table>";
     document.getElementById("infoTable").innerHTML = html_table;
