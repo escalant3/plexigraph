@@ -14,6 +14,7 @@ function RaphaelGraph(_data) {
     this.width = this.paper.width;
     this.height = this.paper.height;
     this.data = _data;
+    this.elements = {};
     this.draw = draw;
     this.render = render;
     this.draw_node = draw_node;
@@ -22,7 +23,7 @@ function RaphaelGraph(_data) {
     this.spring_layout = spring_layout;
     this.random_layout = random_layout;
     this.circular_layout = circular_layout;
-    raphael_object = this;
+    this.paper.raphael_object = this;
 }
 
 function rand (n) {
@@ -147,14 +148,15 @@ function render() {
     };
 }
 
-function draw_node(node, fields) {
-
-
+function draw_node(node) {
     if (node["size"])
         node_size = NODE_SIZE * parseFloat(node["size"]);
     else
         node_size = NODE_SIZE;
     var c = this.paper.circle(node.xpos, node.ypos, node_size);
+    this.elements[node.ID] = {};
+    this.elements[node.ID]["object"] = c;
+    this.elements[node.ID]["edges"] = {};
     c.attr("fill", node["color"]);
     c.node.onclick = function() {
         reset_data();
@@ -174,7 +176,7 @@ function draw_node(node, fields) {
     c.node.onmouseout = function () {
         c.animate({"scale": "1 1"}, NODE_ANIMATION_TIME);
     };
-    /*
+
     function move(dx, dy) {
         this.update(dx - (this.dx || 0), dy - (this.dy || 0));
         this.dx = dx;
@@ -189,9 +191,18 @@ function draw_node(node, fields) {
         x = this.attr("cx") + dx;
         y = this.attr("cy") + dy;
         this.attr({cx: x, cy: y});
-        console.log(this.paper.data.nodes[node.ID]);
+        node_dragged = this.paper.raphael_object.data.nodes[node.ID]
+        node_dragged.xpos = x;
+        node_dragged.ypos = y;
+        edges = this.paper.raphael_object.elements[node.ID].edges;
+        for (var node_id in edges) {
+            edges[node_id].remove();
+            edge.node1 = node.ID;
+            edge.node2 = node_id;
+            this.paper.raphael_object.draw_edge(edge, false);
+        }
     }
-    c.drag(move, up); */
+    c.drag(move, up);
     if (show_labels == true) {
         var t = this.paper.text(node.xpos-NODE_SIZE,
                                 node.ypos-NODE_SIZE,
@@ -199,12 +210,14 @@ function draw_node(node, fields) {
     }
 };
 
-function draw_edge(edge, fields) {
+function draw_edge(edge) {
     node1 = this.data.nodes[edge.node1];
     node2 = this.data.nodes[edge.node2];
     string_path = "M" + node1.xpos + " " + node1.ypos + 
                     "L" + node2.xpos + " " + node2.ypos;
     var e = this.paper.path(string_path);
+    this.elements[edge.node1]["edges"][edge.node2] = e;
+    this.elements[edge.node2]["edges"][edge.node1] = e;
     e.node.onclick = function (event) {
         reset_data();
         selected_node = null;
