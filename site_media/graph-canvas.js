@@ -23,6 +23,7 @@ function RaphaelGraph(_data) {
     this.spring_layout = spring_layout;
     this.random_layout = random_layout;
     this.circular_layout = circular_layout;
+    this.ARF_layout = ARF_layout;
     this.paper.raphael_object = this;
 }
 
@@ -34,6 +35,28 @@ function len(object) {
     counter = 0;
     for (i in object) counter++;
     return counter;
+}
+
+function distance(node1, node2) {
+    dx = node2.xpos - node1.xpos;
+    dy = node2.ypos - node1.ypos;
+    return Math.sqrt(Math.pow(node2.xpos - node1.xpos, 2) + Math.pow(node2.ypos - node1.ypos, 2));
+}
+
+function fdistance(node1, node2) {
+    dx = node2.xpos - node1.xpos;
+    dy = node2.ypos - node1.ypos;
+    return (dx*dx + dy*dy);
+}
+
+function is_edge(node1, node2, edges) {
+    for (var i in edges) {
+        if (edges[i].node1 == node1 && edges[i].node2 == node2 || 
+            edges[i].node1 == node2 && edges[i].node2 == node1) {
+            return true;
+        }
+    }
+    return false
 }
 
 function coulombRepulsion(k, node1, node2) {
@@ -56,7 +79,7 @@ function hookeAttraction(k, nodes, edge) {
     var dx = node2.xpos - node1.xpos;
     var dy = node2.ypos - node1.ypos;
     var d2 = dx * dx + dy * dy;
-    var attractiveForce = d2 / k;
+    var attractiveForce = 2 * d2 / k;
     var d = Math.sqrt(d2);
     if (d>0) {
         node2.xspeed -= attractiveForce * dx / d;
@@ -75,14 +98,12 @@ function random_layout() {
 
 function spring_layout() {
     for (var node in this.data.nodes) {
-        this.data.nodes[node].xpos = rand(this.width);
-        this.data.nodes[node].ypos = rand(this.height);
         this.data.nodes[node].xspeed = 0;
         this.data.nodes[node].yspeed = 0;
     }
     N = this.len(this.data.nodes);
     k = Math.sqrt(this.height*this.width/N);
-    for (var iteration=0;iteration<25;iteration=iteration+1) {
+    for (var iteration=0;iteration<50;iteration=iteration+1) {
         for (var i in this.data.nodes) {
             for (var j in this.data.nodes) {
                 coulombRepulsion(k, this.data.nodes[i], this.data.nodes[j]);
@@ -93,14 +114,14 @@ function spring_layout() {
         }
         for (var i in this.data.nodes) {
             node = this.data.nodes[i];
-            var xmove = 0.0001 * node.xspeed;
-            var ymove = 0.0001 * node.yspeed;
+            var xmove = 0.001 * node.xspeed;
+            var ymove = 0.001 * node.yspeed;
             node.xpos += xmove;
             node.ypos += ymove;
-            if (node.xpos > this.width) node.xpos=this.width;
-            if (node.xpos < 0) node.xpos=0;
-            if (node.ypos > this.height) node.ypos=this.height;
-            if (node.ypos < 0) node.ypos=0;
+            if (node.xpos > this.width) node.xpos=this.width-5;
+            if (node.xpos < 0) node.xpos=5;
+            if (node.ypos > this.height) node.ypos=this.height-5;
+            if (node.ypos < 0) node.ypos=5;
         }
     }
 }
@@ -123,16 +144,55 @@ function circular_layout() {
     }
 }
 
+function ARF_layout() {
+    var tension = 5;
+    var radius = this.width/2;
+    var nodes = this.data.nodes;
+    var edges = this.data.edges;
+    var b1 = radius * 10;
+    var b2 = b1 * Math.sqrt(2) * this.height / this.width;
+    var K = 0;
+    for(iteration=0;iteration<25;iteration++) {
+        for (var i in nodes) {
+            var s1 = 0;
+            var s2 = 0;
+            for (var j in nodes) {
+                if (i != j) {
+                    if (is_edge(i, j, edges)) {
+                        K = tension;
+                    } else {
+                        K = 0;
+                    }
+                    d = fdistance(nodes[i], nodes[j]);
+                    if (d > 0) {
+                        v1 = (K - b1 / d) * (nodes[j].xpos - nodes[i].xpos);
+                        v2 = (K - b2 / d) * (nodes[j].ypos - nodes[i].ypos);
+                    }
+                    s1 = s1 + v1;
+                    s2 = s2 + v2;
+                }
+            }
+            var xcor = nodes[i].xpos + s1 / 500;
+            var ycor = nodes[i].ypos + s2 / 500;
+            if (xcor>0 && xcor<this.width) {nodes[i].xpos = xcor;}
+            if (ycor>0 && ycor<this.height) {nodes[i].ypos = ycor;}
+        }
+    }
+}
+
 function draw(layout) {
     switch (layout) {
         case "random": this.random_layout();break;
         case "spring": this.spring_layout();break;
         case "circular": this.circular_layout();break;
+        case "ARF":this.ARF_layout();break;
     }
     this.render();
 }
 
 function render() {
+    NODE_SIZE = this.width*this.height/4000;
+    NODE_SIZE /= this.len(this.data.nodes);
     this.paper.clear();
     var r = this.paper.rect(0, 0, this.width, this.height, 10);
     for (var node in this.data.nodes) {
@@ -149,11 +209,7 @@ function render() {
 }
 
 function draw_node(node) {
-    if (node["size"])
-        node_size = NODE_SIZE * parseFloat(node["size"]);
-    else
-        node_size = NODE_SIZE;
-    var c = this.paper.circle(node.xpos, node.ypos, node_size);
+    var c = this.paper.circle(node.xpos, node.ypos, NODE_SIZE);
     this.elements[node.ID] = {};
     this.elements[node.ID]["object"] = c;
     this.elements[node.ID]["edges"] = {};
