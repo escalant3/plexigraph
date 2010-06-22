@@ -58,9 +58,8 @@
                 raphael.update(gdata);
             }
             function ferror(response) {
-                alert('ERROR deleting node');
+                alert('ERROR expanding node');
             }
-
             if (multiselection) {
                 multiselection = false;
                 url = "{% url graphview.views.expand_nodes 'JVAR' %}".replace('JVAR', multiselection_table);

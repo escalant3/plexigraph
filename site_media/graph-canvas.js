@@ -21,7 +21,7 @@ function RaphaelGraph(_data) {
     this.draw_edge = draw_edge;
     this.remove = remove;
     this.update = update;
-    this.paper.raphael_object = this;
+    raphael_object = this;
 }
 
 function draw(layout) {
@@ -200,7 +200,7 @@ function info_as_table(element) {
 function toggle_labels(label_field) {
     node_label_field = label_field;
     show_labels = !show_labels;
-    raphael_object.draw()
+    raphael_object.render()
 }
 
 function remove(node) {
