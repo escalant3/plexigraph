@@ -14,14 +14,35 @@
         var gdata = eval({{ json_graph|safe }});
         var raphael;
 
-        function delete_node() {
+        function delete_node(response) {
+            function fsuccess(response) {
+                nodes = response['node_list'];
+                edges = gdata["edges"];
+                for(var i in nodes) {
+                    node_id = nodes[i];
+                    delete gdata["nodes"][node_id];
+                    for (var j in edges) {
+                        if (edges[j].node1 == node_id || edges[j].node2 == node_id) {
+                            delete edges[j];
+                        }
+                    }
+                    raphael.remove(nodes[i]);
+                }
+            }
+            function ferror(response) {
+                alert('ERROR deleting node');
+            }
             if (multiselection) {
                 multiselection = false;
                 url = "{% url graphview.views.delete_nodes 'JVAR' %}".replace('JVAR', multiselection_table);
             } else {
                 url = "{% url graphview.views.delete_nodes 'JVAR' %}".replace('JVAR', selected_node);
             }
-            self.location.href=url;
+            $.ajax({url: url,
+                    type:"GET",
+                    dataType:"json",
+                    success: fsuccess,
+                    error: ferror});
         }
 
         function delete_edge() {

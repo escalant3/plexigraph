@@ -93,7 +93,8 @@ def delete_nodes(request, node_list):
         for node_id in node_list:
             interactor.remove_nodes([node_id])
         request.session['interactor'] = interactor
-    return redirect(request.session['viewer'])
+    #return redirect(request.session['viewer'])
+    return HttpResponse(simplejson.dumps({'success':True, 'node_list':node_list}))
 
 
 def delete_edges(request, edge_list):
