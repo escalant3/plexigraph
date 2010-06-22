@@ -20,6 +20,7 @@ function RaphaelGraph(_data) {
     this.draw_node = draw_node;
     this.draw_edge = draw_edge;
     this.remove = remove;
+    this.update = update;
     this.paper.raphael_object = this;
 }
 
@@ -208,4 +209,15 @@ function remove(node) {
         node_edges[i].remove();
     }
     this.elements[node]["object"].remove();
+}
+
+function update(_data) {
+    random_layout(_data.nodes, this.width, this.height);
+    for (var i in _data.nodes) {
+        if (this.data.nodes[i] == undefined) {
+            this.data.nodes[i]= _data.nodes[i];
+        }
+    }
+    this.data.edges = _data.edges;
+    this.render();
 }

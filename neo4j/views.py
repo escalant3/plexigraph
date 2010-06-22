@@ -78,7 +78,7 @@ def set_response_dictionary(request):
     response_dictionary['form'] = Neo4jQueryForm()
     interactor = request.session.get('interactor')
     if interactor:
-        new_graph = set_graph_data(request, interactor)[0]
+        new_graph = set_graph_data(interactor)[0]
         response_dictionary['new_graph'] = new_graph
         response_dictionary['metadata_list'] = [(key, value) for key, value
                 in interactor.get_metadata().iteritems()]

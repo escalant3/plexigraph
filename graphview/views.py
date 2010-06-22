@@ -42,8 +42,7 @@ def explore(request, dataset_id):
         request.session['interactor'] = interactor
         new_graph = {'nodes': {}, 'edges':{}}
     else:
-        new_graph, interactive_mode = set_graph_data(request,
-                                                    interactor)
+        new_graph, interactive_mode = set_graph_data(interactor)
     metadata_list = [(key, value) for key, value 
                         in interactor.get_metadata().iteritems()]
     node_style_list = [(key,value) for key,value 
@@ -60,7 +59,7 @@ def explore(request, dataset_id):
                                 'node_style_list': node_style_list})
 
 
-def set_graph_data(request, interactor):
+def set_graph_data(interactor):
     graph = interactor.get_shown_graph()
     if graph.number_of_nodes() < settings.MAX_INTERACTIVE_NODES:
         interactive_mode = True
@@ -74,10 +73,8 @@ def set_graph_data(request, interactor):
         nodes[node].update(interactor.node_data(node))
         try:
             nodes[node]['color'] = interactor.styles[str(graph.node[node]['type'])]['color']
-            nodes[node]['size'] = interactor.styles[str(graph.node[node]['type'])]['size']
         except KeyError:
             nodes[node]['color'] = "#ffffff"
-            nodes[node]['size'] = "1.0"
     for i, edge in enumerate(graph.edges()):
         edges[i] = {'ID': i,
                     'node1': edge[0],
@@ -153,7 +150,10 @@ def expand_nodes(request, node_list):
         for node_id in node_list:
             interactor.expand_node([node_id])
         request.session['interactor'] = interactor
-    return redirect(request.session['viewer'])
+        new_graph = set_graph_data(interactor)[0]
+        response_dictionary = {'success': True,
+                                'new_gdata': new_graph}
+    return HttpResponse(simplejson.dumps(response_dictionary))
 
 
 def interactor_query(request):

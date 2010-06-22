@@ -53,13 +53,25 @@
         }
 
         function expand_node() {
+            function fsuccess(response) {
+                gdata = response['new_gdata'];
+                raphael.update(gdata);
+            }
+            function ferror(response) {
+                alert('ERROR deleting node');
+            }
+
             if (multiselection) {
                 multiselection = false;
                 url = "{% url graphview.views.expand_nodes 'JVAR' %}".replace('JVAR', multiselection_table);
             } else {
                 url = "{% url graphview.views.expand_nodes 'JVAR' %}".replace('JVAR', selected_node);
             }
-            self.location.href=url;
+            $.ajax({url: url,
+                    type:"GET",
+                    dataType:"json",
+                    success: fsuccess,
+                    error: ferror});
         }
 
         function toggle_nodes(node_types) {
