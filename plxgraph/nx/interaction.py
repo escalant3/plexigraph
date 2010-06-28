@@ -138,6 +138,11 @@ class NetworkxInteractor():
         nbunch = self.get_nodes_neighborhood(node)
         subgraph = self.original_graph.subgraph(nbunch)
         self.graph = nx.compose(self.graph, subgraph)
+        for node in subgraph.nodes():
+            new_node_neighbors = self.original_graph.neighbors(node)
+            for n in new_node_neighbors:
+                if n in self.graph.nodes():
+                    self.graph.add_edge(node,n,self.original_graph.edge[node][n].copy())
         for node in self.graph.nodes():
             self.graph.node[node] = self.original_graph.node[node].copy()
 
