@@ -101,7 +101,10 @@ def delete_edges(request, edge_list):
         for edge_tuple in edge_list:
             interactor.remove_edges([edge_tuple])
         request.session['interactor'] = interactor
-    return redirect(request.session['viewer'])
+        new_graph = set_graph_data(interactor)[0]
+        response_dictionary = {'success': True,
+                                'new_gdata': new_graph}
+    return HttpResponse(simplejson.dumps(response_dictionary))
 
 
 def toggle_nodes(request, node_type):

@@ -20,6 +20,7 @@ function RaphaelGraph(_data) {
     this.draw_node = draw_node;
     this.draw_edge = draw_edge;
     this.remove = remove;
+    this.remove_edge = remove_edge;
     this.update = update;
     raphael_object = this;
     this.paper.raphael_object = this;
@@ -210,6 +211,12 @@ function remove(node) {
         node_edges[i].remove();
     }
     this.elements[node]["object"].remove();
+}
+
+function remove_edge(node1, node2) {
+    this.elements[node1]["edges"][node2].remove();
+    delete this.elements[node1]["edges"][node2];
+    delete this.elements[node2]["edges"][node1];
 }
 
 function update(_data) {
