@@ -72,9 +72,12 @@ class NetworkxInteractor():
 
     def remove_isolated_nodes(self):
         ''' Removes nodes without connection '''
+        deleted_nodes = []
         for node in self.graph.nodes():
             if self.graph.degree(node) == 0:
+                deleted_nodes.append(node)
                 self.graph.remove_node(node)
+        return deleted_nodes
 
     def get_nodes_neighborhood(self, nodes, depth=1):
         ''' Returns the neighborhood of a list of nodes with a given depth '''

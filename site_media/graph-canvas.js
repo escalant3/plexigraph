@@ -19,7 +19,7 @@ function RaphaelGraph(_data) {
     this.render = render;
     this.draw_node = draw_node;
     this.draw_edge = draw_edge;
-    this.remove = remove;
+    this.remove_node = remove_node;
     this.remove_edge = remove_edge;
     this.update = update;
     raphael_object = this;
@@ -205,7 +205,7 @@ function toggle_labels(label_field) {
     raphael_object.render()
 }
 
-function remove(node) {
+function remove_node(node) {
     node_edges = this.elements[node]["edges"];
     for (var i in node_edges) {
         node_edges[i].remove();

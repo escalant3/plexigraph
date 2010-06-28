@@ -126,7 +126,7 @@ def save_state(request):
     if interactor:
         interactor.save_graph()
         request.session['interactor'] = interactor
-    return redirect(request.session['viewer'])
+    return HttpResponse(simplejson.dumps({'success':True}))
 
 
 def load_state(request):
@@ -134,15 +134,20 @@ def load_state(request):
     if interactor:
         interactor.reset_graph()
         request.session['interactor'] = interactor
-    return redirect(request.session['viewer'])
+        new_graph = set_graph_data(interactor)[0]
+        response_dictionary = {'success': True,
+                                'new_gdata': new_graph}
+    return HttpResponse(simplejson.dumps(response_dictionary))
 
 
 def delete_isolated(request):
     interactor = request.session.get('interactor')
     if interactor:
-        interactor.remove_isolated_nodes()
+        deleted_nodes = interactor.remove_isolated_nodes()
         request.session['interactor'] = interactor
-    return redirect(request.session['viewer'])
+        response_dictionary = {'success': True,
+                                'deleted_nodes': deleted_nodes}
+    return HttpResponse(simplejson.dumps(response_dictionary))
 
 
 def expand_nodes(request, node_list):

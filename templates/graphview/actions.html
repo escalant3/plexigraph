@@ -1,7 +1,48 @@
+<script type="application/javascript">
+    function delete_isolated() {
+        function fsuccess(response) {
+            deleted_nodes = response['deleted_nodes'];
+            for (var i in deleted_nodes) {
+                delete gdata["nodes"][deleted_nodes[i]];
+                raphael.remove_node(deleted_nodes[i]);
+            }
+        }
+        $.ajax({url: "{% url graphview.views.delete_isolated %}",
+            type:"GET",
+            dataType:"json",
+            success: fsuccess});
+    }
+
+    function reset_graph() {
+    }
+
+    function load_graph_state() {
+        function fsuccess(response) {
+            gdata = response['new_gdata'];
+            raphael.update(gdata);
+        }
+        $.ajax({url: "{% url graphview.views.load_state %}",
+        type:"GET",
+        dataType:"json",
+        success: fsuccess});
+    }
+
+    function save_graph_state() {
+        $.ajax({url: "{% url graphview.views.save_state %}",
+        type:"GET",
+        dataType:"json",
+        success: alert('State saved')});
+    }
+
+    function reset_graph() {
+        self.location.href = "{% url graphview.views.reset %}";
+    }
+
+</script>
 <div id="actions_menu" class="menu">
-    <p><a class="action" href="{% url graphview.views.reset %}">Reset graph</a></p>
-    <p><a class="action" href="{% url graphview.views.save_state %}">Save graph state</a></p>
-    <p><a class="action" href="{% url graphview.views.load_state %}">Load graph state</a></p>
-    <p><a class="action" href="{% url graphview.views.delete_isolated %}">Delete isolated nodes</a></p>
+    <p><a class="action" onClick="reset_graph()">Reset graph</a></p>
+    <p><a class="action" onClick="save_graph_state()">Save graph state</a></p>
+    <p><a class="action" onClick="load_graph_state()">Load graph state</a></p>
+    <p><a class="action" onClick="delete_isolated()">Delete isolated nodes</a></p>
 </div>
 
