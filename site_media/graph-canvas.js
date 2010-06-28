@@ -22,6 +22,7 @@ function RaphaelGraph(_data) {
     this.remove = remove;
     this.update = update;
     raphael_object = this;
+    this.paper.raphael_object = this;
 }
 
 function draw(layout) {
