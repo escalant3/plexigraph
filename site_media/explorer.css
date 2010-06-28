@@ -15,15 +15,9 @@ margin: auto;
 height : 50px; 
 }
 
-#content{
-width: 1024px;
-}
-
 #canvas{
-text-align: left; 
-width: 800px;
+text-align: left;
 float:left;
-background-color: cornflowerblue;
 }
 
 #info{

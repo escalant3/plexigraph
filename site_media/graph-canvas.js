@@ -10,9 +10,9 @@ var multiselection = false;
 var multiselection_table = []
 
 function RaphaelGraph(_data) {
-    this.paper = Raphael("canvas", 800, 800);
-    this.width = this.paper.width;
-    this.height = this.paper.height;
+    this.width = screen.width * 0.95;
+    this.height = screen.height * 0.75;
+    this.paper = Raphael("canvas", this.width, this.height);
     this.data = _data;
     this.elements = {};
     this.draw = draw;
@@ -22,6 +22,7 @@ function RaphaelGraph(_data) {
     this.remove_node = remove_node;
     this.remove_edge = remove_edge;
     this.update = update;
+    this.set_size = set_size;
     raphael_object = this;
     this.paper.raphael_object = this;
 }
@@ -42,7 +43,6 @@ function draw(layout) {
 
 function render() {
     this.paper.clear();
-    var r = this.paper.rect(0, 0, this.width, this.height, 10);
     for (var node in this.data.nodes) {
         if (this.data.nodes[node]['_visible'] == true) {
             this.draw_node(this.data.nodes[node]);
@@ -135,9 +135,9 @@ function draw_edge(edge) {
         e.attr("stroke", "red");
     };
     e.node.onmouseout = function () {
-        e.attr("stroke", "white");
+        e.attr("stroke", "black");
     };
-    e.attr("stroke", "white");
+    e.attr("stroke", "black");
     e.toBack();
 };
 
@@ -228,4 +228,10 @@ function update(_data) {
     }
     this.data.edges = _data.edges;
     this.render();
+}
+
+function set_size(width, height) {
+    this.width = width;
+    this.height = height;
+    this.paper.setSize(width, height);
 }
