@@ -2,7 +2,6 @@ from django.shortcuts import render_to_response, redirect, HttpResponse
 from django.utils import simplejson
 
 import networkx as nx
-import pickle
 from plxgraph.nx.interaction import NetworkxInteractor
 from plxgraph.tools import importers
 
@@ -19,7 +18,7 @@ def main(request):
 def index(request):
     datasets = Dataset.objects.all()
     request.session.pop('interactor', None)
-    return render_to_response('graphview/index.html', {'datasets':datasets})
+    return render_to_response('graphview/index.html', {'datasets': datasets})
 
 
 def explore(request, dataset_id):
@@ -28,7 +27,6 @@ def explore(request, dataset_id):
     interactor = request.session.get('interactor')
     interactive_mode = False
     if (not interactor):
-        styles = dataset.node_styles()
         try:
             if dataset.data_type == 'plxgh':
                 graph = importers.dictionary_to_nx(dataset.topics.path,
@@ -40,20 +38,20 @@ def explore(request, dataset_id):
             return redirect('plexigraph.graphview.views.index')
         interactor = NetworkxInteractor(graph, dataset.get_configuration())
         request.session['interactor'] = interactor
-        new_graph = {'nodes': {}, 'edges':{}}
+        new_graph = {'nodes': {}, 'edges': {}}
     else:
         new_graph, interactive_mode = set_graph_data(interactor)
-    metadata_list = [(key, value) for key, value 
+    metadata_list = [(key, value) for key, value
                         in interactor.get_metadata().iteritems()]
-    node_style_list = [(key,value) for key,value 
+    node_style_list = [(key, value) for key, value
                         in interactor.styles.iteritems()]
     json_graph = simplejson.dumps(new_graph)
     if interactive_mode:
         template = 'graphview/interactive_explorer.html'
     else:
         template = 'graphview/explorer.html'
-    return render_to_response(template, 
-                                {'json_graph':json_graph,
+    return render_to_response(template,
+                                {'json_graph': json_graph,
                                 'dataset': dataset,
                                 'metadata_list': metadata_list,
                                 'node_style_list': node_style_list})
@@ -80,7 +78,7 @@ def set_graph_data(interactor):
                     'node1': edge[0],
                     'node2': edge[1]}
         edges[i].update(graph.edge[edge[0]][edge[1]])
-    return ({'nodes': nodes, 'edges':edges}, interactive_mode)
+    return ({'nodes': nodes, 'edges': edges}, interactive_mode)
 
 
 def delete_nodes(request, node_list):
@@ -90,12 +88,12 @@ def delete_nodes(request, node_list):
         for node_id in node_list:
             interactor.remove_nodes([node_id])
         request.session['interactor'] = interactor
-    #return redirect(request.session['viewer'])
-    return HttpResponse(simplejson.dumps({'success':True, 'node_list':node_list}))
+    return HttpResponse(simplejson.dumps({'success': True,
+                                        'node_list': node_list}))
 
 
 def delete_edges(request, edge_list):
-    edge_list = zip(*[iter(edge_list.split(','))]*2)
+    edge_list = zip(*[iter(edge_list.split(','))] * 2)
     interactor = request.session.get('interactor')
     if interactor:
         for edge_tuple in edge_list:
@@ -126,7 +124,7 @@ def save_state(request):
     if interactor:
         interactor.save_graph()
         request.session['interactor'] = interactor
-    return HttpResponse(simplejson.dumps({'success':True}))
+    return HttpResponse(simplejson.dumps({'success': True}))
 
 
 def load_state(request):
@@ -154,7 +152,6 @@ def expand_nodes(request, node_list):
     node_list = node_list.split(',')
     interactor = request.session.get('interactor')
     if interactor:
-        previous_nodes = interactor.graph.nodes()[:]
         for node_id in node_list:
             interactor.expand_node([node_id])
         request.session['interactor'] = interactor
