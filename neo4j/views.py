@@ -15,7 +15,6 @@ def index(request):
         if form.is_valid():
             host = form.cleaned_data['host']
             gdb = GraphDatabase(host)
-            request.session['gdb'] = gdb
             return HttpResponseRedirect('neo4j/selector/')
     else:
         form = Neo4jConnectionForm()
@@ -30,8 +29,9 @@ def selector(request):
     if request.method == 'POST':
         form = Neo4jQueryForm(request.POST)
         if form.is_valid():
-            gdb = request.session.get('gdb', None)
-            if gdb:
+            host = request.session.get('host', None)
+            if host:
+                gdb = GraphDatabase(host)
                 node = gdb.node[form.cleaned_data['node']]
                 depth = form.cleaned_data['depth']
                 new_nodes = []

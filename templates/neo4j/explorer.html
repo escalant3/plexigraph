@@ -1,8 +1,8 @@
 {% extends "graphview/explorer.html" %}
 
 {% block extra_controls %}
-<span id="actions_button" class="bar menuoption" onClick="toggle('neo4j')">New Neo4j subgraph</span>
-<div id="neo4j_menu" class="menu"/>
+<span id="actions_button" class="bar menuoption" onClick="MenuControl.toggle('neo4j_menu')">New Neo4j subgraph</span>
+<div id="neo4j_menu" class="menu">
     <form action="." method="post">
         {{ form.as_p }}
         <input type="submit" value="Visualize"/>
