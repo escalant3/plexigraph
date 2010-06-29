@@ -114,12 +114,36 @@
         function resize_canvas() {
             width = parseInt(document.getElementById('width_value').value);
             height = parseInt(document.getElementById('height_value').value);
-            console.log("%s - %s", width, height);
             document.getElementById('canvas').style.width = width;
             document.getElementById('canvas').style.height = height;
             raphael.set_size(width, height);
         }
-        
+
+
+
+function push_move_button(element) {
+    var moz = document.getElementById && !document.all;
+    var dragging = false;
+    var object_dragged; 
+    function move_pointer(e){
+        if (dragging) {
+            newLeft = moz ? e.clientX : event.clientX;
+            newTop = moz ? e.clientY : event.clientY;
+            object_dragged.style.left = newLeft - 25;
+            object_dragged.style.top = newTop - 25;
+            return false;
+        }
+    }
+    function release_move_button(e) {
+        dragging = false;
+    }
+    object_dragged = document.getElementById(element);
+    dragging = true;
+    object_dragged.onmousemove = move_pointer;
+    object_dragged.onmouseup = release_move_button;
+    return false;
+}
+
     </script> 
 {% endblock %}
 
@@ -140,9 +164,29 @@
         <div id="canvas"> </div>
         <div id="info">
             {% block extra_controls %}{% endblock %}
-            <div id="infoTable"></div>
         </div>
         <div id="floating_menus">
+            <div id="floating_multinode_menu" class="menu" onClick="toggle('floating_multinode')">
+                    <button id="delete_node" onclick="delete_node()">Delete selected nodes</button>
+                    <button id="expand_node" onclick="expand_node()">Expand selected nodes</button>
+                    <button id="multiselect_node" onclick="multi_select()">Cancel multiselection</button>
+            </div>
+            <div id="element_info_menu" class="menu">
+                <div>
+                    <span class="control" onMouseDown="push_move_button('element_info_menu')">&oplus;</span>
+                    <span class="control" onClick="toggle('element_info')">&otimes;
+                </div>
+                <div id="floating_node_menu">
+                    <button id="delete_node" class="control" onclick="delete_node()">Del.</button>
+                    <button id="expand_node" class="control" onclick="expand_node()">Exp.</button>
+                    <button id="multiselect_node" class="control" onclick="multi_select()">Multisel</button>
+                </div>
+                <div id="floating_edge_menu">
+                    <button id="delete_edge" class="control" onclick="delete_edge()">Delete edge</button>
+                </div>
+                <div id="infoTable" class="infoTable"></div>
+                
+            </div>
             <div id="topics_menu" class="menu">
                 {% for key, style in node_style_list %}
                     <input type="checkbox" onclick="toggle_nodes('{{ key }}')" 
@@ -190,21 +234,6 @@
                 </table>
             </div>
             {% include "graphview/actions.html" %}
-            <div id="floating_node_menu" onmouseout="this.style.display='none'"
-                               onclick="this.style.display='none'"
-                               onmouseover="this.style.display='block'">
-                <button id="delete_node" onclick="delete_node()">Delete node</button>
-                <br/>
-                <button id="expand_node" onclick="expand_node()">Expand node</button>
-                <br/>
-                <button id="multiselect_node" onclick="multi_select()">Multi selection</button>
-            </div>
-            <div id="floating_edge_menu" onmouseout="this.style.display='none'"
-                               onclick="this.style.display='none'"
-                               onmouseover="this.style.display='block'">
-                <input id="delete_edge" type="button" value="Delete node" onclick="delete_edge()"/>
-                <br/>
-            </div>
             <div id="dataset_info_menu" class="menu">
                 <table class="dataset">
                     <tr>
@@ -235,7 +264,7 @@
 <div id="query_menu" class="menu query_menu">
     <form action="{% url graphview.views.interactor_query %}"" method="post">
         <input id="query" name="query" type="text" size="60"/>
-        <input id="btn_query" type="submit" value="Query"/>
+        <input id="btn_query" type="submit" value="Execute"/>
         <input id="cncl_query" type="button" value="Cancel" onClick="toggle('query')"/>
     </form>
 </div>

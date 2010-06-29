@@ -68,6 +68,7 @@ function draw_node(node) {
         selected_edge = null;
         info_html = info_as_table(node);
         if (!multiselection) {
+            toggle('element_info');
             show_node_action_box(node.xpos + XMARGIN, node.ypos + YMARGIN);
         } else {
             multiselection_table.push(selected_node);
@@ -161,29 +162,19 @@ function key_check(e) {
 };
 
 function show_node_action_box(xpos, ypos) {
-    document.getElementById('delete_node').value = "Delete node " + selected_node;
-    document.getElementById('expand_node').value = "Expand node " + selected_node;
-    document.getElementById('multiselect_node').value = "Start multiselection";
-    document.getElementById('floating_node_menu').style.top = (ypos)+"px";
-    document.getElementById('floating_node_menu').style.left = (xpos)+"px";
     document.getElementById('floating_node_menu').style.display='block';
-    return;
+    document.getElementById('floating_edge_menu').style.display='none';
 };
 
 function show_edge_action_box(xpos, ypos) {
-    document.getElementById('delete_edge').value = "Delete edge " + selected_edge;
-    document.getElementById('floating_edge_menu').style.top = ypos+"px";
-    document.getElementById('floating_edge_menu').style.left = xpos+"px";
     document.getElementById('floating_edge_menu').style.display='block';
+    document.getElementById('floating_node_menu').style.display='none';
 };
 
 function show_node_multiselection_box() {
-    document.getElementById('delete_node').value = "Delete selected nodes";
-    document.getElementById('expand_node').value = "Expand selected nodes";
-    document.getElementById('multiselect_node').value = "Cancel multiselection";
-    document.getElementById('floating_node_menu').style.top = "10px";
-    document.getElementById('floating_node_menu').style.left = "1000px";
-    document.getElementById('floating_node_menu').style.display = "block";
+    document.getElementById('floating_multinode_menu').style.top = "10px";
+    document.getElementById('floating_multinode_menu').style.left = "10px";
+    document.getElementById('floating_multinode_menu').style.display = "block";
 }
 
 function info_as_table(element) {
