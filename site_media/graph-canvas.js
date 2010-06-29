@@ -68,7 +68,7 @@ function draw_node(node) {
         selected_edge = null;
         info_html = info_as_table(node);
         if (!multiselection) {
-            toggle('element_info');
+            MenuControl.toggle('element_info_menu');
             show_node_action_box(node.xpos + XMARGIN, node.ypos + YMARGIN);
         } else {
             multiselection_table.push(selected_node);

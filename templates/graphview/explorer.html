@@ -1,6 +1,7 @@
 {% extends "graphview/base.html" %}
 
 {% block javascript_imports %}
+<script language="javascript" src="/site_media/js/menu-controls.js"></script>
 <script language="javascript" src="/site_media/raphael-min.js"></script>
 <script language="javascript" src="/site_media/graph-algorithms.js"></script>
 <script language="javascript" src="/site_media/graph-canvas.js"></script>
@@ -118,32 +119,6 @@
             document.getElementById('canvas').style.height = height;
             raphael.set_size(width, height);
         }
-
-
-
-function push_move_button(element) {
-    var moz = document.getElementById && !document.all;
-    var dragging = false;
-    var object_dragged; 
-    function move_pointer(e){
-        if (dragging) {
-            newLeft = moz ? e.clientX : event.clientX;
-            newTop = moz ? e.clientY : event.clientY;
-            object_dragged.style.left = newLeft - 25;
-            object_dragged.style.top = newTop - 25;
-            return false;
-        }
-    }
-    function release_move_button(e) {
-        dragging = false;
-    }
-    object_dragged = document.getElementById(element);
-    dragging = true;
-    object_dragged.onmousemove = move_pointer;
-    object_dragged.onmouseup = release_move_button;
-    return false;
-}
-
     </script> 
 {% endblock %}
 
@@ -154,6 +129,7 @@ function push_move_button(element) {
             raphael.draw("circular");
             terminalWidget = document.getElementById('query');
             terminalWidget.onkeydown = onKeyDown;
+            MenuControl.render_controls('.menu');
         }
     </script>
 {% endblock %}
@@ -172,10 +148,6 @@ function push_move_button(element) {
                     <button id="multiselect_node" onclick="multi_select()">Cancel multiselection</button>
             </div>
             <div id="element_info_menu" class="menu">
-                <div>
-                    <span class="control" onMouseDown="push_move_button('element_info_menu')">&oplus;</span>
-                    <span class="control" onClick="toggle('element_info')">&otimes;
-                </div>
                 <div id="floating_node_menu">
                     <button id="delete_node" class="control" onclick="delete_node()">Del.</button>
                     <button id="expand_node" class="control" onclick="expand_node()">Exp.</button>
