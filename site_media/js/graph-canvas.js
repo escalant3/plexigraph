@@ -87,15 +87,15 @@ RaphaelGraph.prototype.draw_node = function draw_node(node) {
         x = this.attr("cx") + dx;
         y = this.attr("cy") + dy;
         this.attr({cx: x, cy: y});
-        node_dragged = this.paper.raphael_object.data.nodes[node.ID]
+        node_dragged = raphael.data.nodes[node.ID]
         node_dragged.xpos = x;
         node_dragged.ypos = y;
-        edges = this.paper.raphael_object.elements[node.ID].edges;
+        edges = raphael.elements[node.ID].edges;
         for (var node_id in edges) {
             edges[node_id].remove();
             edge.node1 = node.ID;
             edge.node2 = node_id;
-            this.paper.raphael_object.draw_edge(edge, false);
+            raphael.draw_edge(edge, false);
         }
     }
     c.drag(move, up);
@@ -114,13 +114,15 @@ RaphaelGraph.prototype.draw_edge = function draw_edge(edge) {
     var e = this.paper.path(string_path);
     this.elements[edge.node1]["edges"][edge.node2] = e;
     this.elements[edge.node2]["edges"][edge.node1] = e;
+    raphael = this;
     e.node.onclick = function (event) {
         selected_node = null;
         selected_edge = edge.ID;
-        info_html = info_as_table(edge);
+        MenuControl.toggle('element_info_menu');
+        info_html = raphael.info_as_table(edge);
         xpos = event.clientX;
         ypos = event.clientY;
-        show_edge_action_box(xpos, ypos);
+        raphael.show_edge_action_box(xpos, ypos);
     }
     e.node.onmouseover = function () {
         e.attr("stroke", "red");
