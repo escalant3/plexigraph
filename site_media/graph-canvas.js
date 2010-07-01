@@ -1,47 +1,37 @@
-var raphael_object = null;
-var NODE_SIZE = 10;
-var HALF_NODE = NODE_SIZE / 2;
-var NODE_ANIMATION_TIME = 250;
-var XMARGIN = 5;
-var YMARGIN = 5;
-var show_labels = false;
-var node_label_field = "";
-var multiselection = false;
-var multiselection_table = []
-
 function RaphaelGraph(_data) {
     this.width = screen.width * 0.95;
     this.height = screen.height * 0.75;
     this.paper = Raphael("canvas", this.width, this.height);
     this.data = _data;
     this.elements = {};
-    this.draw = draw;
-    this.render = render;
-    this.draw_node = draw_node;
-    this.draw_edge = draw_edge;
-    this.remove_node = remove_node;
-    this.remove_edge = remove_edge;
-    this.update = update;
-    this.set_size = set_size;
     raphael_object = this;
     this.paper.raphael_object = this;
 }
 
-function draw(layout) {
+RaphaelGraph.prototype.NODE_SIZE = 10;
+RaphaelGraph.prototype.NODE_ANIMATION_TIME = 250;
+RaphaelGraph.prototype.XMARGIN = 5;
+RaphaelGraph.prototype.YMARGIN = 5;
+RaphaelGraph.prototype.show_labels = false;
+RaphaelGraph.prototype.node_label_field = "";
+RaphaelGraph.prototype.multiselection = false;
+RaphaelGraph.prototype.multiselection_table = [];
+
+RaphaelGraph.prototype.draw = function draw(layout) {
     nodes = this.data.nodes;
     edges = this.data.edges;
     width = this.width;
     height = this.height;
     switch (layout) {
-        case "random": random_layout(nodes, width, height);break;
-        case "spring": spring_layout(nodes,edges,25,width,height);break;
-        case "circular": circular_layout(nodes, width, height);break;
-        case "ARF":ARF_layout(nodes,edges,25,width,height);break;
+        case "random": GraphLayout.random_layout(nodes, width, height);break;
+        case "spring": GraphLayout.spring_layout(nodes,edges,25,width,height);break;
+        case "circular": GraphLayout.circular_layout(nodes, width, height);break;
+        case "ARF": GraphLayout.ARF_layout(nodes,edges,25,width,height);break;
     }
     this.render();
 }
 
-function render() {
+RaphaelGraph.prototype.render = function render() {
     this.paper.clear();
     for (var node in this.data.nodes) {
         if (this.data.nodes[node]['_visible'] == true) {
@@ -56,30 +46,31 @@ function render() {
     };
 }
 
-function draw_node(node) {
-    var c = this.paper.circle(node.xpos, node.ypos, NODE_SIZE);
+RaphaelGraph.prototype.draw_node = function draw_node(node) {
+    var c = this.paper.circle(node.xpos, node.ypos, this.NODE_SIZE);
     this.elements[node.ID] = {};
     this.elements[node.ID]["object"] = c;
     this.elements[node.ID]["edges"] = {};
     c.attr("fill", node["color"]);
+    raphael = this;
     c.node.onclick = function() {
-        reset_data();
         selected_node = node.ID;
         selected_edge = null;
-        info_html = info_as_table(node);
-        if (!multiselection) {
+        info_html = raphael.info_as_table(node);
+        if (!raphael.multiselection) {
             MenuControl.toggle('element_info_menu');
-            show_node_action_box(node.xpos + XMARGIN, node.ypos + YMARGIN);
+            raphael.show_node_action_box(node.xpos + raphael.XMARGIN,
+                                node.ypos + raphael.YMARGIN);
         } else {
-            multiselection_table.push(selected_node);
-            show_node_multiselection_box();
+            raphael.multiselection_table.push(selected_node);
+            raphael.show_node_multiselection_box();
         };
     };
     c.node.onmouseover = function () {
-        c.animate({"scale": "2 2"}, NODE_ANIMATION_TIME);
+        c.animate({"scale": "2 2"}, raphael.NODE_ANIMATION_TIME);
     };
     c.node.onmouseout = function () {
-        c.animate({"scale": "1 1"}, NODE_ANIMATION_TIME);
+        c.animate({"scale": "1 1"}, raphael.NODE_ANIMATION_TIME);
     };
 
     function move(dx, dy) {
@@ -108,14 +99,14 @@ function draw_node(node) {
         }
     }
     c.drag(move, up);
-    if (show_labels == true) {
-        var t = this.paper.text(node.xpos-NODE_SIZE,
-                                node.ypos-NODE_SIZE,
-                                node[node_label_field]);
+    if (this.show_labels == true) {
+        var t = this.paper.text(node.xpos-this.NODE_SIZE,
+                                node.ypos-this.NODE_SIZE,
+                                node[this.node_label_field]);
     }
 };
 
-function draw_edge(edge) {
+RaphaelGraph.prototype.draw_edge = function draw_edge(edge) {
     node1 = this.data.nodes[edge.node1];
     node2 = this.data.nodes[edge.node2];
     string_path = "M" + node1.xpos + " " + node1.ypos + 
@@ -124,7 +115,6 @@ function draw_edge(edge) {
     this.elements[edge.node1]["edges"][edge.node2] = e;
     this.elements[edge.node2]["edges"][edge.node1] = e;
     e.node.onclick = function (event) {
-        reset_data();
         selected_node = null;
         selected_edge = edge.ID;
         info_html = info_as_table(edge);
@@ -142,42 +132,23 @@ function draw_edge(edge) {
     e.toBack();
 };
 
-function reset_data() {
-    table = document.getElementById("info");
-    cells = table.getElementsByTagName("td");
-    for (var c in cells) {
-        cells[c].textContent = "";
-    }
-};
-
-function key_check(e) {
-    var evt = window.event ? event : e;
-    var charcode = evt.charCode ? evt.charCode : evt.keyCode;
-    var key_pressed = String.fromCharCode(charcode)
-    switch (key_pressed) {
-        case "l": show_labels = !show_labels;
-    }
-    raphael_object.paper.clear();
-    raphael_object.draw();
-};
-
-function show_node_action_box(xpos, ypos) {
+RaphaelGraph.prototype.show_node_action_box = function show_node_action_box(xpos, ypos) {
     document.getElementById('floating_node_menu').style.display='block';
     document.getElementById('floating_edge_menu').style.display='none';
 };
 
-function show_edge_action_box(xpos, ypos) {
+RaphaelGraph.prototype.show_edge_action_box = function show_edge_action_box(xpos, ypos) {
     document.getElementById('floating_edge_menu').style.display='block';
     document.getElementById('floating_node_menu').style.display='none';
 };
 
-function show_node_multiselection_box() {
+RaphaelGraph.prototype.show_node_multiselection_box = function show_node_multiselection_box() {
     document.getElementById('floating_multinode_menu').style.top = "10px";
     document.getElementById('floating_multinode_menu').style.left = "10px";
     document.getElementById('floating_multinode_menu').style.display = "block";
 }
 
-function info_as_table(element) {
+RaphaelGraph.prototype.info_as_table = function info_as_table(element) {
     html_table = "<table>";
     for (var field in element) {
         if (field.length && field[0]!="_") {
@@ -190,13 +161,13 @@ function info_as_table(element) {
     document.getElementById("infoTable").innerHTML = html_table;
 }
 
-function toggle_labels(label_field) {
-    node_label_field = label_field;
-    show_labels = !show_labels;
+RaphaelGraph.prototype.toggle_labels = function toggle_labels(label_field) {
+    this.node_label_field = label_field;
+    this.show_labels = !this.show_labels;
     raphael_object.render()
 }
 
-function remove_node(node) {
+RaphaelGraph.prototype.remove_node = function remove_node(node) {
     node_edges = this.elements[node]["edges"];
     for (var i in node_edges) {
         node_edges[i].remove();
@@ -204,13 +175,13 @@ function remove_node(node) {
     this.elements[node]["object"].remove();
 }
 
-function remove_edge(node1, node2) {
+RaphaelGraph.prototype.remove_edge = function remove_edge(node1, node2) {
     this.elements[node1]["edges"][node2].remove();
     delete this.elements[node1]["edges"][node2];
     delete this.elements[node2]["edges"][node1];
 }
 
-function update(_data) {
+RaphaelGraph.prototype.update = function update(_data) {
     random_layout(_data.nodes, this.width, this.height);
     for (var i in _data.nodes) {
         if (this.data.nodes[i] == undefined) {
@@ -221,7 +192,7 @@ function update(_data) {
     this.render();
 }
 
-function set_size(width, height) {
+RaphaelGraph.prototype.set_size = function set_size(width, height) {
     this.width = width;
     this.height = height;
     this.paper.setSize(width, height);

@@ -33,9 +33,9 @@
             function ferror(response) {
                 alert('ERROR deleting node');
             }
-            if (multiselection) {
-                multiselection = false;
-                url = "{% url graphview.views.delete_nodes 'JVAR' %}".replace('JVAR', multiselection_table);
+            if (raphael.multiselection) {
+                raphael.multiselection = false;
+                url = "{% url graphview.views.delete_nodes 'JVAR' %}".replace('JVAR', raphael.multiselection_table);
             } else {
                 url = "{% url graphview.views.delete_nodes 'JVAR' %}".replace('JVAR', selected_node);
             }
@@ -79,9 +79,9 @@
             function ferror(response) {
                 alert('ERROR expanding node');
             }
-            if (multiselection) {
-                multiselection = false;
-                url = "{% url graphview.views.expand_nodes 'JVAR' %}".replace('JVAR', multiselection_table);
+            if (raphael.multiselection) {
+                raphael.multiselection = false;
+                url = "{% url graphview.views.expand_nodes 'JVAR' %}".replace('JVAR', raphael.multiselection_table);
             } else {
                 url = "{% url graphview.views.expand_nodes 'JVAR' %}".replace('JVAR', selected_node);
             }
@@ -98,12 +98,12 @@
         }
 
         function multi_select() {
-            if (!multiselection) {
-                multiselection_table = []
-                multiselection_table.push(selected_node);
-                multiselection = true;
+            if (!raphael.multiselection) {
+                raphael.multiselection_table = []
+                raphael.multiselection_table.push(selected_node);
+                raphael.multiselection = true;
             } else {
-                multiselection = false;
+                raphael.multiselection = false;
             }
         }
         
@@ -142,7 +142,7 @@
             {% block extra_controls %}{% endblock %}
         </div>
         <div id="floating_menus">
-            <div id="floating_multinode_menu" class="menu" onClick="toggle('floating_multinode')">
+            <div id="floating_multinode_menu" class="menu" onClick="MenuControl.toggle('floating_multinode_menu')">
                     <button id="delete_node" onclick="delete_node()">Delete selected nodes</button>
                     <button id="expand_node" onclick="expand_node()">Expand selected nodes</button>
                     <button id="multiselect_node" onclick="multi_select()">Cancel multiselection</button>
