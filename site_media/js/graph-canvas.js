@@ -113,7 +113,6 @@ RaphaelGraph.prototype.draw_edge = function draw_edge(edge) {
                     "L" + node2.xpos + " " + node2.ypos;
     var e = this.paper.path(string_path);
     this.elements[edge.node1]["edges"][edge.node2] = e;
-    this.elements[edge.node2]["edges"][edge.node1] = e;
     raphael = this;
     e.node.onclick = function (event) {
         selected_node = null;
@@ -154,8 +153,17 @@ RaphaelGraph.prototype.info_as_table = function info_as_table(element) {
     html_table = "<table>";
     for (var field in element) {
         if (field.length && field[0]!="_") {
+            element_value = element[field];
+            if (element[field] instanceof Object) {
+                element_value = "";
+                for (var j in element[field]) {
+                    element_value += "<p>" + j + ": " + element[field][j] + "</p>";
+                }
+            } else {
+                element_value = element[field];
+            }
             html_table += "<tr><td class=\"label\">" + field +
-                        ":</td><td class=\"data\">" + element[field] + 
+                        ":</td><td class=\"data\">" + element_value + 
                         "</td></tr>";
             }
     }

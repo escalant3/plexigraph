@@ -19,8 +19,14 @@ class NetworkxInteractor():
         for node in self.graph.nodes():
             self.graph.node[node]['_visible'] = True
         for edge in self.graph.edges():
-            if 'weight' not in self.graph.edge[edge[0]][edge[1]]:
-                self.graph.edge[edge[0]][edge[1]]['weight'] = 1.0
+            edge_dict = self.graph.edge[edge[0]][edge[1]]
+            if (not self.graph.is_multigraph()):
+                if 'weight' not in edge_dict:
+                    edge_dict['weight'] = 1.0
+            else:
+                for multiedge in edge_dict:
+                    if 'weight' not in edge_dict[multiedge]:
+                        edge_dict[multiedge]['weight'] = 1.0
         if not style_dict:
             for node_id in self.graph.nodes():
                 node_type = self.graph.node[node_id].get('type', None)

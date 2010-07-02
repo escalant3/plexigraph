@@ -77,7 +77,7 @@ def set_graph_data(interactor):
         edges[i] = {'ID': i,
                     'node1': edge[0],
                     'node2': edge[1]}
-        edges[i].update(graph.edge[edge[0]][edge[1]])
+        edges[i].update(graph.get_edge_data(edge[0], edge[1]))
     return ({'nodes': nodes, 'edges': edges}, interactive_mode)
 
 

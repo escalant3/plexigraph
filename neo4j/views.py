@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response, HttpResponseRedirect, redirect
 from django.utils import simplejson
 
 from neo4jclient import GraphDatabase
-from networkx import Graph
+from networkx import MultiDiGraph
 
 from forms import Neo4jConnectionForm, Neo4jQueryForm
 from graphview.views import set_graph_data
@@ -35,7 +35,7 @@ def selector(request):
                 node = gdb.node[form.cleaned_data['node']]
                 depth = form.cleaned_data['depth']
                 new_nodes = []
-                graph = Graph()
+                graph = MultiDiGraph()
                 node_id = str(node.id)
                 graph.add_node(node_id, **node.properties)
                 new_nodes.append(node_id)
