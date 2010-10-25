@@ -1,6 +1,6 @@
 function RaphaelGraph(_data) {
-    this.width = screen.width * 0.95;
-    this.height = screen.height * 0.75;
+    this.width = window.innerWidth * 0.95;
+    this.height = window.innerHeight * 0.95;
     this.paper = Raphael("canvas", this.width, this.height);
     this.data = _data;
     this.elements = {};
@@ -14,8 +14,12 @@ RaphaelGraph.prototype.XMARGIN = 5;
 RaphaelGraph.prototype.YMARGIN = 5;
 RaphaelGraph.prototype.show_labels = false;
 RaphaelGraph.prototype.node_label_field = "";
+RaphaelGraph.prototype.node_label_field = "";
 RaphaelGraph.prototype.multiselection = false;
 RaphaelGraph.prototype.multiselection_table = [];
+RaphaelGraph.prototype.events_enabled = true;
+RaphaelGraph.prototype.default_node_color = "#f00";
+RaphaelGraph.prototype.font_color = "#000";
 
 RaphaelGraph.prototype.draw = function draw(layout) {
     nodes = this.data.nodes;
@@ -34,13 +38,17 @@ RaphaelGraph.prototype.draw = function draw(layout) {
 RaphaelGraph.prototype.render = function render() {
     this.paper.clear();
     for (var node in this.data.nodes) {
-        if (this.data.nodes[node]['_visible'] == true) {
+        node_dict = this.data.nodes[node];
+        if (!node_dict.hasOwnProperty('_visible') || node_dict['_visible'] == true) {
             this.draw_node(this.data.nodes[node]);
         }
     };
     for (var e in this.data.edges) {
         edge = this.data.edges[e]
-        if (this.data.nodes[edge.node1]['_visible'] && this.data.nodes[edge.node2]['_visible']) {
+        node1_dict = this.data.nodes[edge.node1];
+        node2_dict = this.data.nodes[edge.node2];
+        if ((!node1_dict.hasOwnProperty('_visible') || node1_dict['_visible']) && 
+            (!node2_dict.hasOwnProperty('_visible') || node2_dict['_visible'])) {
             this.draw_edge(edge);
         }
     };
@@ -51,58 +59,65 @@ RaphaelGraph.prototype.draw_node = function draw_node(node) {
     this.elements[node.ID] = {};
     this.elements[node.ID]["object"] = c;
     this.elements[node.ID]["edges"] = {};
-    c.attr("fill", node["color"]);
+    if (node.hasOwnProperty("color")) {
+        c.attr("fill", node["color"]);
+    } else {
+        c.attr("fill", this.default_node_color);
+    }
     raphael = this;
-    c.node.onclick = function() {
-        selected_node = node.ID;
-        selected_edge = null;
-        info_html = raphael.info_as_table(node);
-        if (!raphael.multiselection) {
-            MenuControl.toggle('element_info_menu');
-            raphael.show_node_action_box(node.xpos + raphael.XMARGIN,
-                                node.ypos + raphael.YMARGIN);
-        } else {
-            raphael.multiselection_table.push(selected_node);
-            raphael.show_node_multiselection_box();
+    if (this.events_enabled) {
+        c.node.onclick = function() {
+            selected_node = node.ID;
+            selected_edge = null;
+            info_html = raphael.info_as_table(node);
+            if (!raphael.multiselection) {
+                MenuControl.toggle('element_info_menu');
+                raphael.show_node_action_box(node.xpos + raphael.XMARGIN,
+                                    node.ypos + raphael.YMARGIN);
+            } else {
+                raphael.multiselection_table.push(selected_node);
+                raphael.show_node_multiselection_box();
+            };
         };
-    };
-    c.node.onmouseover = function () {
-        c.animate({"scale": "2 2"}, raphael.NODE_ANIMATION_TIME);
-    };
-    c.node.onmouseout = function () {
-        c.animate({"scale": "1 1"}, raphael.NODE_ANIMATION_TIME);
-    };
+        c.node.onmouseover = function () {
+            c.animate({"scale": "2 2"}, raphael.NODE_ANIMATION_TIME);
+        };
+        c.node.onmouseout = function () {
+            c.animate({"scale": "1 1"}, raphael.NODE_ANIMATION_TIME);
+        };
 
-    function move(dx, dy) {
-        this.update(dx - (this.dx || 0), dy - (this.dy || 0));
-        this.dx = dx;
-        this.dy = dy;
-    }
-
-    function up() {
-        this.dx = this.dy = 0;
-    }
-
-    c.update = function (dx, dy) {
-        x = this.attr("cx") + dx;
-        y = this.attr("cy") + dy;
-        this.attr({cx: x, cy: y});
-        node_dragged = raphael.data.nodes[node.ID]
-        node_dragged.xpos = x;
-        node_dragged.ypos = y;
-        edges = raphael.elements[node.ID].edges;
-        for (var node_id in edges) {
-            edges[node_id].remove();
-            edge.node1 = node.ID;
-            edge.node2 = node_id;
-            raphael.draw_edge(edge, false);
+        function move(dx, dy) {
+            this.update(dx - (this.dx || 0), dy - (this.dy || 0));
+            this.dx = dx;
+            this.dy = dy;
         }
+
+        function up() {
+            this.dx = this.dy = 0;
+        }
+
+        c.update = function (dx, dy) {
+            x = this.attr("cx") + dx;
+            y = this.attr("cy") + dy;
+            this.attr({cx: x, cy: y});
+            node_dragged = raphael.data.nodes[node.ID]
+            node_dragged.xpos = x;
+            node_dragged.ypos = y;
+            edges = raphael.elements[node.ID].edges;
+            for (var node_id in edges) {
+                edges[node_id].remove();
+                edge.node1 = node.ID;
+                edge.node2 = node_id;
+                raphael.draw_edge(edge, false);
+            }
+        }
+        //FIXME c.drag(move, up); // It does not move all the edges
     }
-    c.drag(move, up);
     if (this.show_labels == true) {
         var t = this.paper.text(node.xpos-this.NODE_SIZE,
                                 node.ypos-this.NODE_SIZE,
                                 node[this.node_label_field]);
+        t.attr({fill:this.font_color});
     }
 };
 
@@ -114,23 +129,33 @@ RaphaelGraph.prototype.draw_edge = function draw_edge(edge) {
     var e = this.paper.path(string_path);
     this.elements[edge.node1]["edges"][edge.node2] = e;
     raphael = this;
-    e.node.onclick = function (event) {
-        selected_node = null;
-        selected_edge = edge.ID;
-        MenuControl.toggle('element_info_menu');
-        info_html = raphael.info_as_table(edge);
-        xpos = event.clientX;
-        ypos = event.clientY;
-        raphael.show_edge_action_box(xpos, ypos);
-    }
-    e.node.onmouseover = function () {
-        e.attr("stroke", "red");
-    };
-    e.node.onmouseout = function () {
+    if (this.events_enabled) {
+        e.node.onclick = function (event) {
+            selected_node = null;
+            selected_edge = edge.ID;
+            MenuControl.toggle('element_info_menu');
+            info_html = raphael.info_as_table(edge);
+            xpos = event.clientX;
+            ypos = event.clientY;
+            raphael.show_edge_action_box(xpos, ypos);
+        }
+        e.node.onmouseover = function () {
+            e.attr("stroke", "red");
+        };
+        e.node.onmouseout = function () {
+            e.attr("stroke", "black");
+        };
         e.attr("stroke", "black");
-    };
-    e.attr("stroke", "black");
-    e.toBack();
+        e.toBack();
+    }
+    if (this.show_labels == true) {
+        central_point_x = (node1.xpos + node2.xpos)/2;
+        central_point_y = (node1.ypos + node2.ypos)/2;
+        var t = this.paper.text(central_point_x,
+                                central_point_y,
+                                edge[this.edge_label_field]);
+        t.attr({fill:this.font_color});
+    }
 };
 
 RaphaelGraph.prototype.show_node_action_box = function show_node_action_box(xpos, ypos) {
@@ -173,6 +198,7 @@ RaphaelGraph.prototype.info_as_table = function info_as_table(element) {
 
 RaphaelGraph.prototype.toggle_labels = function toggle_labels(label_field) {
     this.node_label_field = label_field;
+    this.edge_label_field = label_field;
     this.show_labels = !this.show_labels;
     raphael_object.render()
 }
@@ -192,7 +218,7 @@ RaphaelGraph.prototype.remove_edge = function remove_edge(node1, node2) {
 }
 
 RaphaelGraph.prototype.update = function update(_data) {
-    random_layout(_data.nodes, this.width, this.height);
+    GraphLayout.random_layout(_data.nodes, this.width, this.height);
     for (var i in _data.nodes) {
         if (this.data.nodes[i] == undefined) {
             this.data.nodes[i]= _data.nodes[i];
